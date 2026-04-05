@@ -1,0 +1,1623 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum PlanType {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+enum LocaleCode {
+  EN
+  FR
+  ES
+}
+
+enum WorkspaceStatus {
+  ACTIVE
+  ARCHIVED
+  SUSPENDED
+}
+
+enum UserStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+  DISABLED
+}
+
+enum MembershipStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+  REMOVED
+}
+
+enum OpportunityStatus {
+  DRAFT
+  IDENTIFIED
+  ASSESSING
+  PRIORITIZED
+  APPROVED
+  IN_PROGRESS
+  LIVE
+  BLOCKED
+  ARCHIVED
+}
+
+enum OpportunityBadge {
+  NONE
+  QUICK_WIN
+  STRATEGIC
+  TRANSFORMATIONAL
+  HIGH_CONFIDENCE
+  AT_RISK
+}
+
+enum DecisionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DEFERRED
+  NEEDS_INFO
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SKIPPED
+}
+
+enum MetricType {
+  FINANCIAL
+  EFFICIENCY
+  QUALITY
+  RISK
+  ADOPTION
+  TIME
+  CUSTOMER
+}
+
+enum RiskSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ComplianceStatus {
+  NOT_STARTED
+  IN_REVIEW
+  PASSED
+  FAILED
+  WAIVED
+}
+
+enum UsageEventType {
+  AI_REQUEST
+  PROCESS_CREATED
+  OPPORTUNITY_CREATED
+  USER_INVITED
+  EXPORT_TRIGGERED
+  GOVERNANCE_REVIEW
+  API_CALL
+  LOGIN
+}
+
+enum FeatureKey {
+  CUSTOM_SCORING
+  ADVANCED_WORKFLOWS
+  ADVANCED_EXPORTS
+  PORTFOLIO_GOVERNANCE
+  ADVANCED_GOVERNANCE
+  MULTI_BUSINESS_UNIT
+  SSO
+  SCIM
+  FULL_AUDIT
+  API_ACCESS
+  CENTRALIZED_ADMIN
+}
+
+enum LimitKey {
+  WORKSPACES
+  USERS
+  PROCESSES
+  OPPORTUNITIES
+  AI_REQUESTS_PER_MONTH
+  BUSINESS_UNITS
+}
+
+enum LimitScope {
+  TENANT
+  WORKSPACE
+}
+
+enum LimitPeriod {
+  TOTAL
+  MONTHLY
+}
+
+enum DataReadinessLevel {
+  UNKNOWN
+  LOW
+  MEDIUM
+  HIGH
+  PRODUCTION_READY
+}
+
+enum MedallionStage {
+  BRONZE
+  SILVER
+  GOLD
+}
+
+enum DataProductReadinessStatus {
+  NOT_READY
+  PARTIALLY_READY
+  READY
+}
+
+enum DataQualitySignalType {
+  FRESHNESS
+  COMPLETENESS
+  ACCURACY
+  CONSISTENCY
+  TRUST
+}
+
+enum DataQualitySignalStatus {
+  UNKNOWN
+  HEALTHY
+  WARNING
+  CRITICAL
+}
+
+enum AssessmentType {
+  INITIAL
+  REVIEW
+  REASSESSMENT
+  GOVERNANCE
+  EXECUTION
+}
+
+enum DependencyType {
+  OPPORTUNITY
+  INITIATIVE
+  APPLICATION
+  DATA_SOURCE
+  EXTERNAL
+}
+
+enum RiskStatus {
+  OPEN
+  MITIGATED
+  ACCEPTED
+  CLOSED
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELED
+}
+
+enum ActionItemStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  CANCELED
+}
+
+enum InitiativeStatus {
+  PLANNED
+  IN_PROGRESS
+  AT_RISK
+  COMPLETED
+  CANCELED
+}
+
+enum MilestoneStatus {
+  PLANNED
+  IN_PROGRESS
+  DONE
+  MISSED
+}
+
+enum AttachmentKind {
+  DOCUMENT
+  IMAGE
+  LINK
+  EXPORT
+  OTHER
+}
+
+enum AuditActorType {
+  USER
+  SYSTEM
+  API
+}
+
+// Core tenancy and billing.
+// Seed FREE / PRO / ENTERPRISE in SubscriptionPlan, then attach features and limits.
+// FREE should typically include:
+// - 1 workspace
+// - 5 users
+// - 15 processes
+// - 30 opportunities
+// - 30 AI requests per month
+// - no custom scoring, advanced workflows, multi-BU, SSO, SCIM, or full audit
+model SubscriptionPlan {
+  id           String   @id @default(cuid())
+  planType     PlanType @unique
+  name         String
+  description  String?  @db.Text
+  isPublic     Boolean  @default(true)
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenants  Tenant[]
+  features PlanFeature[]
+  limits   PlanLimit[]
+}
+
+model PlanFeature {
+  id          String     @id @default(cuid())
+  planId      String
+  featureKey  FeatureKey
+  label       String
+  description String?    @db.Text
+  enabled     Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  plan SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, featureKey])
+  @@index([featureKey])
+}
+
+model PlanLimit {
+  id          String      @id @default(cuid())
+  planId      String
+  limitKey    LimitKey
+  scope       LimitScope  @default(WORKSPACE)
+  period      LimitPeriod @default(TOTAL)
+  limitValue  Int?
+  description String?     @db.Text
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  plan        SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  usageQuotas UsageQuota[]
+
+  @@unique([planId, limitKey, scope, period])
+  @@index([limitKey, scope, period])
+}
+
+model Tenant {
+  id                 String             @id @default(cuid())
+  name               String
+  slug               String             @unique
+  subscriptionPlanId String
+  subscriptionStatus SubscriptionStatus @default(TRIALING)
+  billingEmail       String?
+  trialEndsAt        DateTime?
+  planActivatedAt    DateTime?
+  settings           Json?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  deletedAt          DateTime?
+
+  subscriptionPlan SubscriptionPlan @relation(fields: [subscriptionPlanId], references: [id], onDelete: Restrict)
+  workspaces       Workspace[]
+  usageQuotas      UsageQuota[]
+  usageEvents      UsageEvent[]
+  auditLogs        AuditLog[]
+
+  @@index([subscriptionPlanId, subscriptionStatus])
+}
+
+model Workspace {
+  id            String          @id @default(cuid())
+  tenantId      String
+  name          String
+  slug          String
+  status        WorkspaceStatus @default(ACTIVE)
+  defaultLocale LocaleCode      @default(EN)
+  settings      Json?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+
+  tenant           Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  memberships      Membership[]
+  roles            Role[]
+  businessUnits    BusinessUnit[]
+  domains          Domain[]
+  capabilities     Capability[]
+  processes        Process[]
+  subProcesses     SubProcess[]
+  painPoints       PainPoint[]
+  applications     Application[]
+  dataSources      DataSource[]
+  dataProducts     DataProduct[]
+  reportingAssets  ReportingAsset[]
+  dataQualitySignals DataQualitySignal[]
+  kpis             KPI[]
+  tags             Tag[]
+  opportunityTypes OpportunityType[]
+  scoreTemplates   ScoreTemplate[]
+  opportunities    Opportunity[]
+  decisionBoards   DecisionBoard[]
+  reviewMeetings   ReviewMeeting[]
+  decisions        Decision[]
+  actionItems      ActionItem[]
+  initiatives      Initiative[]
+  benefitMetrics   BenefitMetric[]
+  adoptionMetrics  AdoptionMetric[]
+  attachments      Attachment[]
+  usageQuotas      UsageQuota[]
+  usageEvents      UsageEvent[]
+  auditLogs        AuditLog[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, status])
+}
+
+// Optional business-unit layer used mainly by Enterprise customers.
+model BusinessUnit {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  parentId         String?
+  name             String
+  slug             String
+  code             String?
+  description      String?   @db.Text
+  nameTranslations Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  workspace      Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  parent         BusinessUnit?   @relation("BusinessUnitHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children       BusinessUnit[]  @relation("BusinessUnitHierarchy")
+  domains        Domain[]
+  capabilities   Capability[]
+  processes      Process[]
+  opportunities  Opportunity[]
+  decisionBoards DecisionBoard[]
+  initiatives    Initiative[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId])
+  @@index([parentId])
+}
+
+model User {
+  id              String     @id @default(cuid())
+  name            String?
+  email           String?    @unique
+  emailVerified   DateTime?
+  image           String?
+  hashedPassword  String?
+  status          UserStatus @default(ACTIVE)
+  preferredLocale LocaleCode @default(EN)
+  jobTitle        String?
+  preferences     Json?
+  lastLoginAt     DateTime?
+  hasCompletedProcessFocusOnboarding Boolean @default(false)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  deletedAt       DateTime?
+
+  accounts               Account[]
+  sessions               Session[]
+  memberships            Membership[]
+  ownedProcesses         Process[]               @relation("ProcessOwner")
+  ownedDataProducts      DataProduct[]           @relation("DataProductOwner")
+  ownedOpportunities     Opportunity[]           @relation("OpportunityOwner")
+  sponsoredOpportunities Opportunity[]           @relation("OpportunitySponsor")
+  createdOpportunities   Opportunity[]           @relation("OpportunityCreator")
+  assessments            OpportunityAssessment[] @relation("AssessmentAssessor")
+  chairedBoards          DecisionBoard[]         @relation("DecisionBoardChair")
+  decisionsMade          Decision[]              @relation("DecisionMaker")
+  approvalAssignments    ApprovalStep[]          @relation("ApprovalApprover")
+  ownedRiskItems         RiskItem[]              @relation("RiskOwner")
+  ownedComplianceChecks  ComplianceCheck[]       @relation("ComplianceOwner")
+  authoredComments       OpportunityComment[]    @relation("CommentAuthor")
+  ownedActionItems       ActionItem[]            @relation("ActionItemOwner")
+  ownedInitiatives       Initiative[]            @relation("InitiativeOwner")
+    uploadedAttachments    Attachment[]            @relation("AttachmentUploader")
+    auditLogs              AuditLog[]              @relation("AuditActor")
+    usageEvents            UsageEvent[]
+    processFocusSelections UserProcessFocusSelection[]
+  }
+
+model Membership {
+  id           String           @id @default(cuid())
+  userId       String
+  workspaceId  String
+  roleId       String
+  status       MembershipStatus @default(INVITED)
+  acceptedAt   DateTime?
+  lastActiveAt DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  deletedAt    DateTime?
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  role      Role      @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, workspaceId])
+  @@index([workspaceId, status])
+  @@index([roleId])
+}
+
+model Role {
+  id          String    @id @default(cuid())
+  workspaceId String
+  code        String
+  name        String
+  description String?   @db.Text
+  isSystem    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  memberships Membership[]
+  permissions RolePermission[]
+
+  @@unique([workspaceId, code])
+  @@index([workspaceId])
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  roles RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+}
+
+model UsageQuota {
+  id            String      @id @default(cuid())
+  tenantId      String
+  workspaceId   String?
+  planLimitId   String?
+  limitKey      LimitKey
+  scope         LimitScope
+  period        LimitPeriod
+  periodStart   DateTime
+  periodEnd     DateTime
+  allowedValue  Int?
+  consumedValue Int         @default(0)
+  resetAt       DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  tenant    Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  workspace Workspace?   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  planLimit PlanLimit?   @relation(fields: [planLimitId], references: [id], onDelete: SetNull)
+  events    UsageEvent[]
+
+  @@index([tenantId, limitKey, periodStart])
+  @@index([workspaceId, limitKey, periodStart])
+}
+
+model UsageEvent {
+  id           String         @id @default(cuid())
+  tenantId     String
+  workspaceId  String?
+  userId       String?
+  usageQuotaId String?
+  type         UsageEventType
+  quantity     Int            @default(1)
+  occurredAt   DateTime       @default(now())
+  metadata     Json?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  workspace  Workspace?  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  usageQuota UsageQuota? @relation(fields: [usageQuotaId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, type, occurredAt])
+  @@index([workspaceId, type, occurredAt])
+}
+
+model AuditLog {
+  id          String         @id @default(cuid())
+  tenantId    String
+  workspaceId String?
+  actorUserId String?
+  actorType   AuditActorType @default(USER)
+  action      String
+  entityType  String
+  entityId    String?
+  summary     String?        @db.Text
+  beforeState Json?
+  afterState  Json?
+  metadata    Json?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  actorUser User?      @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, entityType, createdAt])
+  @@index([workspaceId, createdAt])
+}
+
+// Lightweight business mapping.
+model Domain {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  businessUnitId   String?
+  name             String
+  slug             String
+  description      String?   @db.Text
+  // Optional custom labels if customers later want localized names.
+  nameTranslations Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  businessUnit  BusinessUnit? @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
+  capabilities  Capability[]
+  processes     Process[]
+  painPoints    PainPoint[]
+  opportunities Opportunity[]
+
+  @@unique([workspaceId, slug])
+  @@index([businessUnitId])
+}
+
+model Capability {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  businessUnitId   String?
+  domainId         String
+  name             String
+  slug             String
+  description      String?   @db.Text
+  nameTranslations Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  businessUnit  BusinessUnit? @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
+  domain        Domain        @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  processes     Process[]
+  painPoints    PainPoint[]
+  opportunities Opportunity[]
+
+  @@unique([workspaceId, slug])
+  @@index([domainId])
+  @@index([businessUnitId])
+}
+
+model Process {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  businessUnitId   String?
+  domainId         String
+  capabilityId     String?
+  ownerId          String?
+  name             String
+  slug             String
+  description      String?   @db.Text
+  nameTranslations Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  workspace     Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  businessUnit  BusinessUnit?        @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
+  domain        Domain               @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  capability    Capability?          @relation(fields: [capabilityId], references: [id], onDelete: SetNull)
+  owner         User?                @relation("ProcessOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  subProcesses  SubProcess[]
+  painPoints    PainPoint[]
+  dataProducts  DataProductProcessLink[]
+  reportingAssets ReportingAsset[]
+  kpis          KPI[]
+    opportunities Opportunity[]
+    applications  ProcessApplication[]
+    dataSources   ProcessDataSource[]
+    focusSelections UserProcessFocusSelection[]
+
+  @@unique([workspaceId, slug])
+  @@index([domainId])
+  @@index([capabilityId])
+  @@index([ownerId])
+}
+
+model UserProcessFocusSelection {
+  userId    String
+  processId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  process Process @relation(fields: [processId], references: [id], onDelete: Cascade)
+
+  @@id([userId, processId])
+  @@index([processId])
+}
+
+model SubProcess {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  processId        String
+  name             String
+  slug             String
+  description      String?   @db.Text
+  nameTranslations Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  process       Process       @relation(fields: [processId], references: [id], onDelete: Cascade)
+  painPoints    PainPoint[]
+  opportunities Opportunity[]
+
+  @@unique([workspaceId, slug])
+  @@index([processId])
+}
+
+model PainPoint {
+  id               String       @id @default(cuid())
+  workspaceId      String
+  domainId         String?
+  capabilityId     String?
+  processId        String?
+  subProcessId     String?
+  title            String
+  description      String?      @db.Text
+  nameTranslations Json?
+  severity         RiskSeverity @default(MEDIUM)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  deletedAt        DateTime?
+
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  domain        Domain?       @relation(fields: [domainId], references: [id], onDelete: SetNull)
+  capability    Capability?   @relation(fields: [capabilityId], references: [id], onDelete: SetNull)
+  process       Process?      @relation(fields: [processId], references: [id], onDelete: SetNull)
+  subProcess    SubProcess?   @relation(fields: [subProcessId], references: [id], onDelete: SetNull)
+  opportunities Opportunity[]
+
+  @@index([processId])
+  @@index([subProcessId])
+  @@index([capabilityId])
+}
+
+model Application {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  name             String
+  slug             String
+  vendor           String?
+  description      String?   @db.Text
+  nameTranslations Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  workspace     Workspace                @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  processes     ProcessApplication[]
+  dataSources   ApplicationDataSource[]
+  opportunities OpportunityApplication[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId])
+}
+
+model DataSource {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  name             String
+  slug             String
+  systemName       String?
+  classification   String?
+  description      String?   @db.Text
+  nameTranslations Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  workspace     Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  applications  ApplicationDataSource[]
+  processes     ProcessDataSource[]
+  opportunities OpportunityDataSource[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId])
+}
+
+model KPI {
+  id               String     @id @default(cuid())
+  workspaceId      String
+  processId        String?
+  name             String
+  slug             String
+  unit             String?
+  description      String?    @db.Text
+  metricType       MetricType
+  nameTranslations Json?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  deletedAt        DateTime?
+
+  workspace      Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  process        Process?         @relation(fields: [processId], references: [id], onDelete: SetNull)
+  opportunities  OpportunityKPI[]
+  benefitMetrics BenefitMetric[]
+
+  @@unique([workspaceId, slug])
+  @@index([processId])
+}
+
+model Tag {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  name             String
+  slug             String
+  color            String?
+  description      String?   @db.Text
+  nameTranslations Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  workspace     Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  opportunities OpportunityTag[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId])
+}
+
+// Opportunity portfolio and scoring.
+model OpportunityType {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  code             String
+  name             String
+  description      String?   @db.Text
+  isSystem         Boolean   @default(false)
+  nameTranslations Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  opportunities Opportunity[]
+
+  @@unique([workspaceId, code])
+  @@index([workspaceId])
+}
+
+model ScoreTemplate {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  code             String
+  name             String
+  description      String?   @db.Text
+  isDefault        Boolean   @default(false)
+  isSystem         Boolean   @default(false)
+  nameTranslations Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  workspace     Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  dimensions    ScoreDimension[]
+  opportunities Opportunity[]
+  assessments   OpportunityAssessment[]
+
+  @@unique([workspaceId, code])
+  @@index([workspaceId])
+}
+
+model ScoreDimension {
+  id              String      @id @default(cuid())
+  scoreTemplateId String
+  key             String
+  name            String
+  description     String?     @db.Text
+  metricType      MetricType?
+  weight          Decimal     @default(0) @db.Decimal(5, 2)
+  displayOrder    Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  deletedAt       DateTime?
+
+  scoreTemplate ScoreTemplate @relation(fields: [scoreTemplateId], references: [id], onDelete: Cascade)
+  scoreResults  ScoreResult[]
+
+  @@unique([scoreTemplateId, key])
+  @@index([scoreTemplateId, displayOrder])
+}
+
+/// Central entity: a scored AI opportunity attached to business context.
+model Opportunity {
+  id                  String             @id @default(cuid())
+  workspaceId         String
+  businessUnitId      String?
+  domainId            String
+  capabilityId        String
+  processId           String
+  subProcessId        String?
+  painPointId         String?
+  ownerId             String?
+  sponsorId           String?
+  createdById         String?
+  opportunityTypeId   String
+  scoreTemplateId     String?
+  currentDecisionId   String?            @unique
+  title               String
+  titleTranslations   Json?
+  summary             String?            @db.Text
+  summaryTranslations Json?
+  problemStatement    String?            @db.Text
+  aiHypothesis        String?            @db.Text
+  status              OpportunityStatus  @default(DRAFT)
+  badge               OpportunityBadge   @default(NONE)
+  dataReadiness       DataReadinessLevel @default(UNKNOWN)
+  riskSeverity        RiskSeverity       @default(MEDIUM)
+  expectedValue       Decimal?           @db.Decimal(18, 2)
+  realizedValue       Decimal?           @db.Decimal(18, 2)
+  overallScore        Decimal?           @db.Decimal(6, 2)
+  currencyCode        String             @default("USD") @db.VarChar(3)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  deletedAt           DateTime?
+
+  workspace        Workspace                @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  businessUnit     BusinessUnit?            @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
+  domain           Domain                   @relation(fields: [domainId], references: [id], onDelete: Restrict)
+  capability       Capability               @relation(fields: [capabilityId], references: [id], onDelete: Restrict)
+  process          Process                  @relation(fields: [processId], references: [id], onDelete: Restrict)
+  subProcess       SubProcess?              @relation(fields: [subProcessId], references: [id], onDelete: SetNull)
+  painPoint        PainPoint?               @relation(fields: [painPointId], references: [id], onDelete: SetNull)
+  owner            User?                    @relation("OpportunityOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  sponsor          User?                    @relation("OpportunitySponsor", fields: [sponsorId], references: [id], onDelete: SetNull)
+  createdBy        User?                    @relation("OpportunityCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  opportunityType  OpportunityType          @relation(fields: [opportunityTypeId], references: [id], onDelete: Restrict)
+  scoreTemplate    ScoreTemplate?           @relation(fields: [scoreTemplateId], references: [id], onDelete: SetNull)
+  currentDecision  Decision?                @relation("CurrentOpportunityDecision", fields: [currentDecisionId], references: [id], onDelete: SetNull)
+  assessments      OpportunityAssessment[]
+  dataProducts      DataProductOpportunityLink[]
+  applications     OpportunityApplication[]
+  dataSources      OpportunityDataSource[]
+  kpis             OpportunityKPI[]
+  tags             OpportunityTag[]
+  dependencies     Dependency[]             @relation("OpportunityDependencies")
+  blockedBy        Dependency[]             @relation("OpportunityDependencyTargets")
+  risks            RiskItem[]
+  complianceChecks ComplianceCheck[]
+  comments         OpportunityComment[]
+  decisions        Decision[]               @relation("OpportunityDecisions")
+  actionItems      ActionItem[]
+  initiatives      Initiative[]
+  benefitMetrics   BenefitMetric[]
+  adoptionMetrics  AdoptionMetric[]
+  attachments      Attachment[]
+
+  @@index([workspaceId, status])
+  @@index([processId, status])
+  @@index([ownerId])
+  @@index([sponsorId])
+  @@index([opportunityTypeId])
+  @@index([businessUnitId])
+}
+
+model OpportunityAssessment {
+  id               String         @id @default(cuid())
+  opportunityId    String
+  scoreTemplateId  String
+  assessorId       String?
+  assessmentType   AssessmentType @default(INITIAL)
+  summary          String?        @db.Text
+  notes            String?        @db.Text
+  recommendation   String?        @db.Text
+  valueScore       Decimal?       @db.Decimal(6, 2)
+  feasibilityScore Decimal?       @db.Decimal(6, 2)
+  confidenceScore  Decimal?       @db.Decimal(6, 2)
+  riskScore        Decimal?       @db.Decimal(6, 2)
+  overallScore     Decimal?       @db.Decimal(6, 2)
+  isCurrent        Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  deletedAt        DateTime?
+
+  opportunity     Opportunity   @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  scoreTemplate   ScoreTemplate @relation(fields: [scoreTemplateId], references: [id], onDelete: Restrict)
+  assessor        User?         @relation("AssessmentAssessor", fields: [assessorId], references: [id], onDelete: SetNull)
+  dimensionScores ScoreResult[]
+
+  @@index([opportunityId, createdAt])
+  @@index([assessorId])
+  @@index([scoreTemplateId])
+}
+
+model ScoreResult {
+  id                      String   @id @default(cuid())
+  opportunityAssessmentId String
+  scoreDimensionId        String
+  rawValue                Decimal  @db.Decimal(10, 4)
+  normalizedValue         Decimal? @db.Decimal(10, 4)
+  weightedValue           Decimal? @db.Decimal(10, 4)
+  notes                   String?  @db.Text
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  opportunityAssessment OpportunityAssessment @relation(fields: [opportunityAssessmentId], references: [id], onDelete: Cascade)
+  scoreDimension        ScoreDimension        @relation(fields: [scoreDimensionId], references: [id], onDelete: Restrict)
+
+  @@unique([opportunityAssessmentId, scoreDimensionId])
+  @@index([scoreDimensionId])
+}
+
+model Dependency {
+  id                  String         @id @default(cuid())
+  opportunityId       String
+  targetOpportunityId String?
+  targetInitiativeId  String?
+  dependencyType      DependencyType
+  title               String?
+  description         String?        @db.Text
+  isBlocking          Boolean        @default(true)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  deletedAt           DateTime?
+
+  opportunity       Opportunity  @relation("OpportunityDependencies", fields: [opportunityId], references: [id], onDelete: Cascade)
+  targetOpportunity Opportunity? @relation("OpportunityDependencyTargets", fields: [targetOpportunityId], references: [id], onDelete: SetNull)
+  targetInitiative  Initiative?  @relation("InitiativeDependencyTargets", fields: [targetInitiativeId], references: [id], onDelete: SetNull)
+
+  @@index([opportunityId])
+  @@index([targetOpportunityId])
+  @@index([targetInitiativeId])
+}
+
+model RiskItem {
+  id             String       @id @default(cuid())
+  opportunityId  String
+  ownerId        String?
+  title          String
+  description    String?      @db.Text
+  severity       RiskSeverity @default(MEDIUM)
+  status         RiskStatus   @default(OPEN)
+  mitigationPlan String?      @db.Text
+  dueDate        DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  owner       User?       @relation("RiskOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+
+  @@index([opportunityId, status])
+  @@index([ownerId])
+}
+
+model ComplianceCheck {
+  id            String           @id @default(cuid())
+  opportunityId String
+  ownerId       String?
+  framework     String
+  controlName   String
+  requirement   String?          @db.Text
+  status        ComplianceStatus @default(NOT_STARTED)
+  notes         String?          @db.Text
+  reviewedAt    DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  deletedAt     DateTime?
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  owner       User?       @relation("ComplianceOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+
+  @@index([opportunityId, status])
+  @@index([ownerId])
+}
+
+model OpportunityComment {
+  id            String    @id @default(cuid())
+  opportunityId String
+  authorId      String
+  body          String    @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  author      User        @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([opportunityId, createdAt])
+  @@index([authorId])
+}
+
+model Attachment {
+  id              String         @id @default(cuid())
+  workspaceId     String
+  opportunityId   String?
+  initiativeId    String?
+  decisionId      String?
+  reviewMeetingId String?
+  uploadedById    String?
+  kind            AttachmentKind @default(DOCUMENT)
+  fileName        String
+  storageKey      String?
+  mimeType        String?
+  sizeBytes       Int?
+  externalUrl     String?
+  metadata        Json?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deletedAt       DateTime?
+
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  opportunity   Opportunity?   @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  initiative    Initiative?    @relation(fields: [initiativeId], references: [id], onDelete: SetNull)
+  decision      Decision?      @relation(fields: [decisionId], references: [id], onDelete: SetNull)
+  reviewMeeting ReviewMeeting? @relation(fields: [reviewMeetingId], references: [id], onDelete: SetNull)
+  uploadedBy    User?          @relation("AttachmentUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, kind])
+  @@index([opportunityId])
+  @@index([initiativeId])
+  @@index([decisionId])
+  @@index([reviewMeetingId])
+}
+
+// Explicit joins keep the process and portfolio graph queryable and easy to extend.
+model OpportunityApplication {
+  opportunityId String
+  applicationId String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@id([opportunityId, applicationId])
+  @@index([applicationId])
+}
+
+model OpportunityDataSource {
+  opportunityId String
+  dataSourceId  String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  dataSource  DataSource  @relation(fields: [dataSourceId], references: [id], onDelete: Cascade)
+
+  @@id([opportunityId, dataSourceId])
+  @@index([dataSourceId])
+}
+
+model OpportunityKPI {
+  opportunityId String
+  kpiId         String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  kpi         KPI         @relation(fields: [kpiId], references: [id], onDelete: Cascade)
+
+  @@id([opportunityId, kpiId])
+  @@index([kpiId])
+}
+
+model OpportunityTag {
+  opportunityId String
+  tagId         String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  tag         Tag         @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([opportunityId, tagId])
+  @@index([tagId])
+}
+
+model ProcessApplication {
+  processId     String
+  applicationId String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  process     Process     @relation(fields: [processId], references: [id], onDelete: Cascade)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@id([processId, applicationId])
+  @@index([applicationId])
+}
+
+model ProcessDataSource {
+  processId    String
+  dataSourceId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  process    Process    @relation(fields: [processId], references: [id], onDelete: Cascade)
+  dataSource DataSource @relation(fields: [dataSourceId], references: [id], onDelete: Cascade)
+
+  @@id([processId, dataSourceId])
+  @@index([dataSourceId])
+}
+
+model ApplicationDataSource {
+  applicationId String
+  dataSourceId  String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  dataSource  DataSource  @relation(fields: [dataSourceId], references: [id], onDelete: Cascade)
+
+  @@id([applicationId, dataSourceId])
+  @@index([dataSourceId])
+}
+
+// Process-centric data products keep AI readiness visible without becoming a full data catalog.
+model DataProduct {
+  id              String                     @id @default(cuid())
+  workspaceId     String
+  ownerId         String?
+  name            String
+  slug            String
+  description     String?                    @db.Text
+  medallionStage  MedallionStage             @default(BRONZE)
+  readinessStatus DataProductReadinessStatus @default(NOT_READY)
+  freshness       String?
+  classification  String?
+  sourceSystem    String?
+  duckdbDatasetRef String?
+  reportingDatasetRef String?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  deletedAt       DateTime?
+
+  workspace        Workspace                     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  owner            User?                         @relation("DataProductOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  processLinks     DataProductProcessLink[]
+  opportunityLinks DataProductOpportunityLink[]
+  reportingAssets  ReportingAsset[]
+  qualitySignals   DataQualitySignal[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId, medallionStage])
+  @@index([workspaceId, readinessStatus])
+  @@index([ownerId])
+}
+
+model DataProductProcessLink {
+  dataProductId String
+  processId     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  dataProduct DataProduct @relation(fields: [dataProductId], references: [id], onDelete: Cascade)
+  process     Process     @relation(fields: [processId], references: [id], onDelete: Cascade)
+
+  @@id([dataProductId, processId])
+  @@index([processId])
+}
+
+model DataProductOpportunityLink {
+  dataProductId String
+  opportunityId String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  dataProduct DataProduct @relation(fields: [dataProductId], references: [id], onDelete: Cascade)
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@id([dataProductId, opportunityId])
+  @@index([opportunityId])
+}
+
+model ReportingAsset {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  dataProductId String
+  processId     String?
+  name          String
+  slug          String
+  description   String?   @db.Text
+  assetType     String?
+  externalUrl   String?
+  supersetDashboardUrl String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  dataProduct DataProduct @relation(fields: [dataProductId], references: [id], onDelete: Cascade)
+  process     Process?    @relation(fields: [processId], references: [id], onDelete: SetNull)
+
+  @@unique([workspaceId, slug])
+  @@index([dataProductId])
+  @@index([processId])
+}
+
+model DataQualitySignal {
+  id            String                  @id @default(cuid())
+  workspaceId   String
+  dataProductId String
+  signalType    DataQualitySignalType
+  status        DataQualitySignalStatus @default(UNKNOWN)
+  label         String
+  value         String?
+  notes         String?                 @db.Text
+  measuredAt    DateTime?
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  dataProduct DataProduct @relation(fields: [dataProductId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, signalType])
+  @@index([dataProductId, status])
+}
+
+// Governance keeps prioritization and approval separate from execution.
+model DecisionBoard {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  businessUnitId   String?
+  chairId          String?
+  name             String
+  slug             String
+  description      String?   @db.Text
+  nameTranslations Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  workspace      Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  businessUnit   BusinessUnit?   @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
+  chair          User?           @relation("DecisionBoardChair", fields: [chairId], references: [id], onDelete: SetNull)
+  reviewMeetings ReviewMeeting[]
+  decisions      Decision[]
+
+  @@unique([workspaceId, slug])
+  @@index([businessUnitId])
+  @@index([chairId])
+}
+
+model ReviewMeeting {
+  id              String        @id @default(cuid())
+  workspaceId     String
+  decisionBoardId String
+  title           String
+  scheduledAt     DateTime
+  heldAt          DateTime?
+  status          MeetingStatus @default(SCHEDULED)
+  summary         String?       @db.Text
+  notes           String?       @db.Text
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  decisionBoard DecisionBoard @relation(fields: [decisionBoardId], references: [id], onDelete: Cascade)
+  decisions     Decision[]
+  actionItems   ActionItem[]
+  attachments   Attachment[]
+
+  @@index([workspaceId, scheduledAt])
+  @@index([decisionBoardId, status])
+}
+
+model Decision {
+  id              String         @id @default(cuid())
+  workspaceId     String
+  opportunityId   String
+  decisionBoardId String?
+  reviewMeetingId String?
+  decidedById     String?
+  status          DecisionStatus @default(PENDING)
+  summary         String?        @db.Text
+  rationale       String?        @db.Text
+  approvedBudget  Decimal?       @db.Decimal(18, 2)
+  currencyCode    String?        @db.VarChar(3)
+  decidedAt       DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deletedAt       DateTime?
+
+  workspace             Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  opportunity           Opportunity    @relation("OpportunityDecisions", fields: [opportunityId], references: [id], onDelete: Cascade)
+  currentForOpportunity Opportunity?   @relation("CurrentOpportunityDecision")
+  decisionBoard         DecisionBoard? @relation(fields: [decisionBoardId], references: [id], onDelete: SetNull)
+  reviewMeeting         ReviewMeeting? @relation(fields: [reviewMeetingId], references: [id], onDelete: SetNull)
+  decidedBy             User?          @relation("DecisionMaker", fields: [decidedById], references: [id], onDelete: SetNull)
+  approvalSteps         ApprovalStep[]
+  actionItems           ActionItem[]
+  initiatives           Initiative[]
+  attachments           Attachment[]
+
+  @@index([workspaceId, status])
+  @@index([opportunityId, decidedAt])
+  @@index([decisionBoardId])
+  @@index([reviewMeetingId])
+  @@index([decidedById])
+}
+
+model ApprovalStep {
+  id                String         @id @default(cuid())
+  decisionId        String
+  approverId        String?
+  stepOrder         Int
+  approverRoleLabel String?
+  status            ApprovalStatus @default(PENDING)
+  notes             String?        @db.Text
+  dueDate           DateTime?
+  actedAt           DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  decision Decision @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+  approver User?    @relation("ApprovalApprover", fields: [approverId], references: [id], onDelete: SetNull)
+
+  @@unique([decisionId, stepOrder])
+  @@index([approverId, status])
+}
+
+model ActionItem {
+  id              String           @id @default(cuid())
+  workspaceId     String
+  opportunityId   String?
+  decisionId      String?
+  reviewMeetingId String?
+  ownerId         String?
+  title           String
+  description     String?          @db.Text
+  status          ActionItemStatus @default(OPEN)
+  dueDate         DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  opportunity   Opportunity?   @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  decision      Decision?      @relation(fields: [decisionId], references: [id], onDelete: SetNull)
+  reviewMeeting ReviewMeeting? @relation(fields: [reviewMeetingId], references: [id], onDelete: SetNull)
+  owner         User?          @relation("ActionItemOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, status])
+  @@index([ownerId, status])
+  @@index([opportunityId])
+}
+
+// Execution and value tracking.
+model Initiative {
+  id             String           @id @default(cuid())
+  workspaceId    String
+  businessUnitId String?
+  opportunityId  String?
+  decisionId     String?
+  ownerId        String?
+  name           String
+  slug           String
+  description    String?          @db.Text
+  status         InitiativeStatus @default(PLANNED)
+  budgetAmount   Decimal?         @db.Decimal(18, 2)
+  currencyCode   String?          @db.VarChar(3)
+  startDate      DateTime?
+  targetDate     DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+
+  workspace            Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  businessUnit         BusinessUnit?    @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
+  opportunity          Opportunity?     @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  decision             Decision?        @relation(fields: [decisionId], references: [id], onDelete: SetNull)
+  owner                User?            @relation("InitiativeOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  milestones           Milestone[]
+  benefitMetrics       BenefitMetric[]
+  adoptionMetrics      AdoptionMetric[]
+  blockingDependencies Dependency[]     @relation("InitiativeDependencyTargets")
+  attachments          Attachment[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId, status])
+  @@index([opportunityId])
+  @@index([decisionId])
+  @@index([businessUnitId])
+  @@index([ownerId])
+}
+
+model Milestone {
+  id           String          @id @default(cuid())
+  initiativeId String
+  name         String
+  description  String?         @db.Text
+  status       MilestoneStatus @default(PLANNED)
+  dueDate      DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  deletedAt    DateTime?
+
+  initiative Initiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+
+  @@index([initiativeId, status])
+}
+
+model BenefitMetric {
+  id            String     @id @default(cuid())
+  workspaceId   String
+  opportunityId String?
+  initiativeId  String?
+  kpiId         String?
+  name          String
+  description   String?    @db.Text
+  metricType    MetricType
+  unit          String?
+  targetValue   Decimal?   @db.Decimal(18, 4)
+  currentValue  Decimal?   @db.Decimal(18, 4)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+
+  workspace      Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  opportunity    Opportunity?    @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  initiative     Initiative?     @relation(fields: [initiativeId], references: [id], onDelete: SetNull)
+  kpi            KPI?            @relation(fields: [kpiId], references: [id], onDelete: SetNull)
+  baselineValues BaselineValue[]
+  realizedValues RealizedValue[]
+
+  @@index([workspaceId, metricType])
+  @@index([opportunityId])
+  @@index([initiativeId])
+  @@index([kpiId])
+}
+
+model BaselineValue {
+  id              String   @id @default(cuid())
+  benefitMetricId String
+  value           Decimal  @db.Decimal(18, 4)
+  capturedAt      DateTime
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  benefitMetric BenefitMetric @relation(fields: [benefitMetricId], references: [id], onDelete: Cascade)
+
+  @@index([benefitMetricId, capturedAt])
+}
+
+model RealizedValue {
+  id              String   @id @default(cuid())
+  benefitMetricId String
+  value           Decimal  @db.Decimal(18, 4)
+  capturedAt      DateTime
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  benefitMetric BenefitMetric @relation(fields: [benefitMetricId], references: [id], onDelete: Cascade)
+
+  @@index([benefitMetricId, capturedAt])
+}
+
+model AdoptionMetric {
+  id            String     @id @default(cuid())
+  workspaceId   String
+  opportunityId String?
+  initiativeId  String?
+  name          String
+  description   String?    @db.Text
+  unit          String?
+  metricType    MetricType @default(ADOPTION)
+  baselineValue Decimal?   @db.Decimal(18, 4)
+  targetValue   Decimal?   @db.Decimal(18, 4)
+  currentValue  Decimal?   @db.Decimal(18, 4)
+  capturedAt    DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  opportunity Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  initiative  Initiative?  @relation(fields: [initiativeId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, metricType])
+  @@index([opportunityId])
+  @@index([initiativeId])
+}
+
+// Auth.js-compatible tables kept intact for future SSO and SCIM work.
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?  @db.Text
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, token])
+}
