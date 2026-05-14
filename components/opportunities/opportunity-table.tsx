@@ -100,11 +100,11 @@ export function OpportunityTable({
                     <div className="space-y-2">
                       <Link
                         href={`/app/opportunities/${opportunity.id}` as Route}
-                        className="text-base font-semibold text-slate-950 transition hover:text-primary"
+                        className="text-base font-semibold text-[--text-primary] transition hover:text-[--green]"
                       >
                         {opportunity.title}
                       </Link>
-                      <p className="max-w-xl text-sm leading-6 text-slate-600">
+                      <p className="max-w-xl text-sm leading-6 text-[--text-secondary]">
                         {opportunity.summary ?? noSummaryLabel}
                       </p>
                     </div>

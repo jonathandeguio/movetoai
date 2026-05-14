@@ -71,13 +71,13 @@ export default async function DomainsPage({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-primary/10 bg-white p-8 shadow-soft-sm">
+      <section className="rounded-3xl border border-[--green-border] bg-[--bg-card] p-8 shadow-soft-sm">
         <div className="space-y-4">
           <Badge>{messages.app.nav.domains.title}</Badge>
-          <h2 className="max-w-4xl text-4xl font-semibold tracking-tight text-slate-950 text-balance">
+          <h2 className="max-w-4xl text-4xl font-semibold tracking-tight text-[--text-primary] text-balance">
             {messages.app.domainsModule.title}
           </h2>
-          <p className="max-w-3xl text-base leading-8 text-slate-600">
+          <p className="max-w-3xl text-base leading-8 text-[--text-secondary]">
             {messages.app.domainsModule.description}
           </p>
         </div>
@@ -156,11 +156,11 @@ export default async function DomainsPage({
                       <div className="space-y-2">
                         <Link
                           href={`/app/domains/${domain.id}` as Route}
-                          className="text-base font-semibold text-slate-950 transition hover:text-primary"
+                          className="text-base font-semibold text-[--text-primary] transition hover:text-[--green]"
                         >
                           {domain.name}
                         </Link>
-                        <p className="max-w-xl text-sm leading-6 text-slate-600">
+                        <p className="max-w-xl text-sm leading-6 text-[--text-secondary]">
                           {domain.description ?? messages.app.domainsModule.noDescription}
                         </p>
                       </div>

@@ -2,7 +2,7 @@ import type { Messages } from "@/lib/i18n/en";
 
 export const esMessages = {
   meta: {
-    title: "BluePilot AI",
+    title: "Move to AI",
     description:
       "Convierte la visibilidad de procesos en una cartera priorizada de oportunidades de IA."
   },
@@ -94,7 +94,7 @@ export const esMessages = {
       eyebrow: "Capa de decision para oportunidades de IA",
       title: "Convierte ideas de IA dispersas en una cartera priorizada",
       subtitle:
-        "BluePilot AI ayuda a los equipos a identificar las mejores oportunidades de IA por proceso de negocio, puntuarlas rapido y pasar de ideas sueltas a una ejecucion gobernada.",
+        "Move to AI ayuda a los equipos a identificar las mejores oportunidades de IA por proceso de negocio, puntuarlas rapido y pasar de ideas sueltas a una ejecucion gobernada.",
       bullets: [
         "Empieza gratis con mapeo de oportunidades orientado al proceso",
         "Pasa a Pro cuando necesites gobernanza, colaboracion y escala",
@@ -117,7 +117,7 @@ export const esMessages = {
         {
           title: "Ligero, no pesado como un repositorio EA",
           description:
-            "BluePilot AI ofrece la capa de decision que necesitan los lideres sin desplegar un repositorio de arquitectura empresarial."
+            "Move to AI ofrece la capa de decision que necesitan los lideres sin desplegar un repositorio de arquitectura empresarial."
         }
       ]
     },
@@ -146,7 +146,7 @@ export const esMessages = {
       title: "Vista previa de FAQ",
       items: [
         {
-          question: "BluePilot AI es una plataforma de process mining?",
+          question: "Move to AI es una plataforma de process mining?",
           answer:
             "No. Es una capa de decision que transforma la visibilidad del proceso en una cartera accionable de oportunidades de IA."
         },
@@ -234,11 +234,11 @@ export const esMessages = {
   },
   auth: {
     login: {
-      title: "Accede a BluePilot AI",
+      title: "Accede a Move to AI",
       subtitle:
         "Entra en tu workspace multilingue y en tu cartera de oportunidades de IA.",
       submit: "Iniciar sesion",
-      footer: "Nuevo en BluePilot AI?",
+      footer: "Nuevo en Move to AI?",
       invalidCredentials: "Correo o contrasena invalidos."
     },
     signup: {
@@ -261,6 +261,13 @@ export const esMessages = {
     workspaceSlug: "Slug del workspace",
     password: "Contrasena",
     preferredLanguage: "Idioma preferido",
+    companySizeLabel: "Tamano de la empresa",
+    companySizePlaceholder: "Selecciona el tamano",
+    companySizeOptions: {
+      pme: "Pyme (menos de 500 empleados)",
+      eti: "Empresa mediana (500 a 5.000 empleados)",
+      grand_groupe: "Gran empresa (mas de 5.000 empleados)"
+    },
     role: "Rol",
     message: "Mensaje"
   },
@@ -268,10 +275,10 @@ export const esMessages = {
     badge: "Onboarding",
     title: "Pasa del primer login a la primera oportunidad de IA en minutos",
     subtitle:
-      "BluePilot AI convierte la visibilidad de procesos en una cartera gobernada de oportunidades de IA. Empieza con un workspace gratis, anade tus primeros procesos y sube de plan solo cuando gobernanza y escala importen.",
+      "Move to AI convierte la visibilidad de procesos en una cartera gobernada de oportunidades de IA. Empieza con un workspace gratis, anade tus primeros procesos y sube de plan solo cuando gobernanza y escala importen.",
     formIntro:
       "Crea tu primer workspace para entrar en la app y empezar a mapear oportunidades de IA por proceso.",
-    whatYouGetTitle: "Lo primero que te aporta BluePilot AI",
+    whatYouGetTitle: "Lo primero que te aporta Move to AI",
     whatYouGetBody:
       "Mapea algunos procesos, captura pain points, identifica oportunidades de IA y haz visible la priorizacion antes de invertir en herramientas de transformacion mas pesadas.",
     stepsTitle: "Como obtener valor rapido",
@@ -327,7 +334,7 @@ export const esMessages = {
         "Selecciona los cinco procesos de negocio que mas importan ahora. Estas elecciones personalizaran tu primera experiencia de oportunidades de IA.",
       whyTitle: "Por que importan estos 5",
       whyBody:
-        "BluePilot AI usara esta seleccion para anclar el primer flujo de descubrimiento de oportunidades de IA en prioridades operativas reales.",
+        "Move to AI usara esta seleccion para anclar el primer flujo de descubrimiento de oportunidades de IA en prioridades operativas reales.",
       bullets: [
         "Empieza desde procesos de negocio reales ya presentes en tu workspace.",
         "Da al producto un punto de partida concreto para descubrir oportunidades de IA.",
@@ -346,6 +353,45 @@ export const esMessages = {
       errors: {
         invalidSelection: "Elige exactamente 5 procesos validos antes de continuar.",
         unexpected: "No hemos podido guardar tu seleccion de procesos ahora mismo."
+      },
+      aiFlow: {
+        domainsTitle: "Cuales son tus dominios de negocio prioritarios?",
+        domainsSubtitle:
+          "Selecciona hasta 3 dominios. Claude recomendara los 6 mejores procesos a automatizar segun tu perfil.",
+        domainsConfirm: "Obtener recomendaciones IA",
+        domainsMin: "Selecciona al menos un dominio para continuar.",
+        loadingTitle: "Analizando tu perfil...",
+        loadingSubtitle:
+          "Claude esta generando recomendaciones de procesos personalizadas para ti.",
+        recommendationsTitle: "Tus procesos recomendados",
+        recommendationsSubtitle:
+          "Segun tu rol y tamano de empresa, Claude recomienda estos 6 procesos. Todos estan preseleccionados — ajusta si es necesario.",
+        profileLabel: "Tu perfil",
+        gainLabel: "Ganancia estimada",
+        complexityLabel: "Complejidad",
+        complexity: {
+          low: "Sencillo",
+          medium: "Moderado",
+          high: "Complejo"
+        },
+        confirmButton: "Confirmar y entrar en la aplicacion",
+        selectAll: "Seleccionar todo",
+        domains: [
+          "Finanzas & Contabilidad",
+          "Recursos Humanos",
+          "Ventas & Desarrollo de Negocio",
+          "Marketing & Comunicacion",
+          "Atencion al Cliente & SAV",
+          "Operaciones & Logistica",
+          "Legal & Cumplimiento",
+          "Compras & Cadena de Suministro",
+          "TI & Digital"
+        ],
+        errors: {
+          apiError:
+            "Servicio de recomendaciones temporalmente no disponible. Se han aplicado procesos por defecto.",
+          saveError: "No hemos podido guardar tu seleccion ahora mismo."
+        }
       }
     }
   },
@@ -382,11 +428,52 @@ export const esMessages = {
       value: { title: "Valor", description: "Valor esperado y realizado" },
       domains: { title: "Dominios", description: "Cobertura de negocio" },
       opportunities: { title: "Oportunidades", description: "Captura de cartera IA" },
+      useCases: { title: "Casos de uso", description: "Especificaciones y entrega de casos IA" },
       processes: { title: "Procesos", description: "Lente de negocio" },
-      dataProducts: { title: "Data products", description: "Capa de datos para AI readiness" },
       governance: { title: "Gobernanza", description: "Revision y decision" },
       analytics: { title: "Analitica", description: "Senales y pruebas" },
-      settings: { title: "Configuracion", description: "Ajustes del workspace" }
+      settings: { title: "Configuracion", description: "Ajustes del workspace" },
+      adminTeam: { title: "Equipo", description: "Gestionar miembros y roles" },
+      adminQuickStart: { title: "Inicio rapido", description: "Checklist de configuracion y puntuacion IA" },
+      adminProcesses: { title: "Procesos", description: "Catalogo y gestion de procesos" },
+      adminAnalytics: { title: "Analitica", description: "ROI y metricas del workspace" },
+      adminSettings: { title: "Configuracion", description: "Ajustes del workspace" },
+      adminBilling: { title: "Facturacion", description: "Suscripcion y facturas" },
+      adminIntegrations: { title: "Integraciones", description: "Conexiones con herramientas" },
+      techDashboard: { title: "Dashboard IT", description: "Integraciones, seguridad y gobernanza" },
+      consultingDashboard: { title: "Consultoría", description: "Mis clientes y programa de socios" },
+      memberDashboard: { title: "Mi espacio", description: "Tareas, procesos y asistente IA" },
+      executiveDashboard: { title: "Vista directiva", description: "Puntuacion madurez, ROI y quick wins" },
+      workspaceAdminDashboard: { title: "Dashboard admin", description: "Vision general y gestion del workspace" },
+      enterpriseArchitectDashboard: { title: "Dashboard arquitecto", description: "Procesos, aplicaciones y arquitectura" },
+      transformationManagerDashboard: { title: "Dashboard transformacion", description: "Cartera, iniciativas y ROI" },
+      // Knowledge section
+      knowledgeApplications: { title: "Aplicaciones", description: "Mapa del paisaje aplicativo" },
+      knowledgeCapabilities: { title: "Capacidades", description: "Arbol de capacidades de negocio" },
+      knowledgeProcesses: { title: "Procesos IA", description: "Procesos enriquecidos con IA" },
+      knowledgeTechnologies: { title: "Tecnologias", description: "Stack tecnologico" },
+      // Insights section
+      insightsMaturity: { title: "Heatmap madurez", description: "Madurez de capacidades" },
+      insightsDependencyGraph: { title: "Grafo dependencias", description: "Relaciones aplicaciones / capacidades" },
+      insightsDataQuality: { title: "Calidad de datos", description: "Informe de calidad del repositorio" },
+      insightsRelationships: { title: "Relaciones IA", description: "Sugerencias de relaciones faltantes" },
+      // Sprint 3
+      surveys: { title: "Encuestas", description: "Encuestas y atestaciones" },
+      governanceAttestations: { title: "Atestaciones", description: "Validacion de entidades" },
+      governanceDecisions: { title: "Decisiones (ADR)", description: "Registro de decisiones de arquitectura" },
+      adminIngestion: { title: "Ingesta", description: "Importacion de archivos" },
+      // Sprint 4
+      copilot: { title: "Copilot IA", description: "Asistente IA conversacional" },
+      insightsBriefing: { title: "Briefing semanal", description: "Resumen IA de la semana" },
+      scenarios: { title: "Escenarios", description: "Simulacion de inversiones IA" },
+      roiDashboard: { title: "ROI Dashboard", description: "Retorno de inversion" },
+      insightsTechRadar: { title: "Tech Radar", description: "Radar tecnologico" },
+      roadmap: { title: "Roadmap IA", description: "Cronograma de iniciativas" },
+      governanceRisks: { title: "Risk Dashboard", description: "Seguimiento de riesgos" },
+      adminWebhooks: { title: "Webhooks", description: "Notificaciones push salientes" },
+      adminAudit:  { title: "Registro de auditoria", description: "Historial de acciones" },
+      compliance:  { title: "Conformidad", description: "Certificaciones y seguimiento regulatorio" },
+      help: { title: "Centro de ayuda", description: "Documentacion y guias de usuario" },
     },
     overview: {
       eyebrow: "Shell multilingue",
@@ -551,99 +638,6 @@ export const esMessages = {
       emptyDescription:
         "Empieza con intake de oportunidades y scoring para que la cartera sea mas facil de priorizar."
     },
-    dataProductsModule: {
-      eyebrow: "Data Products para AI Readiness",
-      title: "Data products",
-      description:
-        "Revisa los data products que soportan tus procesos y oportunidades de IA con una vista simple de madurez y readiness.",
-      table: {
-        title: "Lista de data products",
-        description:
-          "Usa esta vista para entender que data products ya soportan tu paisaje de procesos y tu cartera de oportunidades."
-      },
-      filters: {
-        searchLabel: "Busqueda",
-        searchPlaceholder: "Buscar data products por nombre",
-        medallionStage: "Etapa medallion",
-        readiness: "Readiness",
-        allMedallionStages: "Todas las etapas",
-        allReadinessStates: "Todos los niveles de readiness",
-        stageOptions: {
-          bronze: "Bronze",
-          silver: "Silver",
-          gold: "Gold"
-        },
-        readinessOptions: {
-          draft: "Borrador",
-          inProgress: "En progreso",
-          ready: "Listo"
-        }
-      },
-      headers: {
-        name: "Data product",
-        medallionStage: "Etapa medallion",
-        readiness: "Readiness",
-        processCount: "Procesos",
-        opportunityCount: "Oportunidades",
-        reportingAssetCount: "Assets de reporting"
-      },
-      openDataProduct: "Abrir data product",
-      detail: {
-        backToList: "Volver a data products",
-        summaryTitle: "Resumen",
-        summaryDescription:
-          "Revisa el contexto esencial que hace util este data product para soporte de procesos y AI readiness.",
-        noDescription: "Todavia no hay descripcion del data product.",
-        noOwner: "No hay owner asignado",
-        freshness: "Freshness",
-        noFreshness: "No hay freshness definida",
-        classification: "Classification",
-        noClassification: "No hay classification definida",
-        sourceSystem: "Sistema fuente",
-        noSourceSystem: "No hay sistema fuente vinculado",
-        duckdbDatasetRef: "Referencia de dataset DuckDB",
-        noDuckdbDatasetRef: "Sin referencia de dataset DuckDB",
-        reportingDatasetRef: "Referencia de dataset de reporting",
-        noReportingDatasetRef: "Sin referencia de dataset de reporting",
-        linkedProcessesTitle: "Procesos vinculados",
-        linkedProcessesDescription:
-          "Estos procesos de negocio dependen actualmente de este data product.",
-        noLinkedProcesses: "Todavia no hay procesos vinculados.",
-        openProcess: "Abrir proceso",
-        linkedOpportunitiesTitle: "Oportunidades IA vinculadas",
-        linkedOpportunitiesDescription:
-          "Estas oportunidades de IA dependen actualmente de este data product.",
-        noLinkedOpportunities: "Todavia no hay oportunidades IA vinculadas.",
-        openOpportunity: "Abrir oportunidad",
-        linkedReportingAssetsTitle: "Assets de reporting vinculados",
-        linkedReportingAssetsDescription:
-          "Usa los assets de reporting para mostrar donde este data product ya se reutiliza en dashboards y reporting operativo.",
-        noLinkedReportingAssets: "Todavia no hay assets de reporting vinculados.",
-        noLinkedProcess: "Sin proceso vinculado",
-        externalUrl: "URL externa",
-        noExternalUrl: "Sin URL externa",
-        supersetDashboardUrl: "URL de dashboard Superset",
-        noSupersetDashboardUrl: "Sin URL de dashboard Superset",
-        openReportingAsset: "Abrir asset de reporting",
-        openSupersetDashboard: "Abrir dashboard Superset",
-        qualitySignalsTitle: "Senales de calidad",
-        qualitySignalsDescription:
-          "Las senales de calidad ayudan a los equipos a juzgar si el data product es confiable y utilizable.",
-        qualitySignals: "Senales de calidad",
-        noQualitySignals: "Todavia no hay senales de calidad registradas.",
-        value: "Valor",
-        noValue: "Sin valor",
-        measuredAt: "Medido",
-        notMeasured: "No medido"
-      },
-      emptyTitle: "Todavia no hay data products",
-      emptyFilteredTitle: "Ningun data product coincide con estos filtros",
-      emptyDescription:
-        "Empieza por definir los data products que soportan tus procesos prioritarios y tus oportunidades de IA."
-      ,
-      emptyFilteredDescription:
-        "Prueba una busqueda mas amplia o limpia uno de los filtros activos para ver mas data products."
-    },
     domainsModule: {
       title: "Dominios",
       description:
@@ -729,9 +723,6 @@ export const esMessages = {
       opportunitiesTitle: "Oportunidades IA vinculadas",
       opportunitiesDescription:
         "Usa las oportunidades vinculadas como prueba o detecta espacio libre cuando no haya ninguna.",
-      dataProductsTitle: "Data products vinculados",
-      dataProductsDescription:
-        "Estos data products muestran que ya soporta este proceso y que tan preparada esta la base de datos para IA.",
       nextBestActionsDescription:
         "Estos prompts ayudan al equipo a pasar de la claridad del proceso a la creacion de oportunidades.",
       subProcessesTitle: "Subprocesos",
@@ -747,14 +738,10 @@ export const esMessages = {
       noPainPoints: "Todavia no se han capturado pain points.",
       noPainPointDescription: "Todavia no hay detalle adicional.",
       noOpportunities: "Todavia no hay oportunidades de IA vinculadas.",
-      noDataProducts: "Todavia no hay data products vinculados.",
-      noDataProductsDescription:
-        "Vincula los data products que soportan este proceso para hacer mas visible la readiness de IA.",
       noVendor: "Vendor no especificado",
       noDataClassification: "Todavia no hay clasificacion de datos.",
       scoreLabel: "Score",
       valueLabel: "Valor esperado",
-      openDataProduct: "Abrir data product",
       actions: {
         identifyOpportunityTitle: "Identificar la primera oportunidad de IA",
         identifyOpportunityBody:

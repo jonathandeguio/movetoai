@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -v \"^\\\\s*//\")",
+      "Bash(grep -rn \"#[0-9a-fA-F]\\\\{3,6\\\\}\\\\b\" --include=\"*.tsx\" app/\\\\\\(app\\\\\\)/ components/)",
+      "Bash(grep -v \"^\\\\s*//\" echo \"---HEX---\" grep -rn \"#[0-9a-fA-F]\\\\{3,6\\\\}\\\\b\" --include=\"*.tsx\" app/\\\\\\(app\\\\\\)/ components/)",
+      "Bash(grep -rn \"#[0-9a-fA-F]\\\\{3,6\\\\}\\\\b\" --include=\"*.tsx\" app/\\\\\\(app\\\\\\)/ components/use-cases/ components/opportunities/ components/app/ components/shared/ components/navigation/ components/layout/ components/auth/ components/admin/ components/onboarding/ components/profile/)",
+      "Bash(awk '{print $2}')",
+      "Bash(xargs -I {} bash -c 'echo \"{}\"; grep -l \"process\\\\|domain\\\\|capability\\\\|opportunity\\\\|use-case\\\\|user\\\\|member\\\\|workspace\\\\|data-product\\\\|application\\\\|data-source\\\\|kpi\\\\|tag\\\\|pain-point\\\\|initiative\\\\|decision\\\\|risk\\\\|comment\" {} 2>/dev/null')",
+      "Bash(awk -F: '{print $1}')",
+      "Bash(awk '{print $4}')",
+      "Bash(cat)",
+      "Read(//tmp/**)",
+      "Bash(xargs grep:*)",
+      "Bash(find /c/bluepilot-ai/app/api -name \"route.ts\" -type f -exec grep -l \"export async function\" {} \\\\;)",
+      "Bash(mkdir -p /c/bluepilot-ai/app/api/capabilities/\\\\[id\\\\])",
+      "Bash(mkdir -p /c/bluepilot-ai/app/api/business-units/\\\\[id\\\\])",
+      "Bash(npx tsc *)",
+      "Bash(cp /c/Users/jonat/Downloads/move_ai_favicon.ico /c/bluepilot-ai/public/favicon.ico)",
+      "Bash(cp /c/Users/jonat/Downloads/move_ai_favicon.png /c/bluepilot-ai/public/favicon.png)",
+      "Bash(cp /c/Users/jonat/Downloads/move_ai_logo_transparent.png /c/bluepilot-ai/public/branding/move-to-ai/mark-white.png)",
+      "Bash(cp /c/Users/jonat/Downloads/move_to_ai_logo_transparent.png /c/bluepilot-ai/public/branding/move-to-ai/logo-light.png)",
+      "Bash(cp /c/Users/jonat/Downloads/move-to-ai-favicon.svg /c/bluepilot-ai/public/branding/move-to-ai/mark-network.svg)",
+      "Bash(awk -F'[\\\\\\\\[\\\\\\\\]]' '{print NR, $0}')",
+      "Bash(npx prisma *)",
+      "Bash(node --env-file=.env.example --env-file-if-exists=.env prisma/seed-certifications.js)"
+    ]
+  }
+}

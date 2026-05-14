@@ -6,10 +6,13 @@ import { z } from "zod";
 import { defaultLocale, fromLocaleCode, isLocale } from "@/lib/i18n/config";
 import { verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
+import { verifyTurnstileToken } from "@/lib/turnstile";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8)
+  password: z.string().min(8),
+  turnstileToken: z.string()  // empty string is valid when Turnstile is not configured
 });
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -34,10 +37,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           type: "password"
         }
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         const parsed = credentialsSchema.safeParse(credentials);
 
         if (!parsed.success) {
+          return null;
+        }
+
+        // Extract client IP for rate limiting and Turnstile binding
+        const ip =
+          req?.headers?.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+          req?.headers?.get("x-real-ip") ??
+          "unknown";
+
+        // Rate limit: 5 login attempts per IP per 15 minutes
+        const rateCheck = checkRateLimit(`login:${ip}`, 5, 15 * 60 * 1000);
+        if (!rateCheck.allowed) {
+          return null;
+        }
+
+        // Verify Cloudflare Turnstile token
+        const turnstileOk = await verifyTurnstileToken(parsed.data.turnstileToken, ip);
+        if (!turnstileOk) {
           return null;
         }
 

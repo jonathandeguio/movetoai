@@ -1,131 +1,286 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
+import type { Route } from "next";
+import { ArrowRight, Building2, Loader2 } from "lucide-react";
 
-import { locales } from "@/lib/i18n/config";
-import { useLocaleContext } from "@/components/providers/locale-provider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+// ── Constants ─────────────────────────────────────────────────────────────────
 
-type OnboardingFormProps = {
-  defaultLocale: (typeof locales)[number];
-};
+const COMPANY_SIZES = [
+  { value: "pme",         label: "PME  (< 500 personnes)" },
+  { value: "eti",         label: "ETI  (500 – 5 000 personnes)" },
+  { value: "grand_groupe",label: "Grand groupe  (> 5 000 personnes)" },
+] as const;
 
-export function OnboardingForm({ defaultLocale }: OnboardingFormProps) {
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
-  const { messages } = useLocaleContext();
+const SECTORS = [
+  "Agriculture & Agroalimentaire",
+  "Banque & Finance",
+  "Commerce & Distribution",
+  "Construction & Immobilier",
+  "Éducation & Formation",
+  "Énergie & Environnement",
+  "Industrie & Manufacturing",
+  "Logistique & Transport",
+  "Média & Communication",
+  "Santé & Pharma",
+  "Services aux entreprises",
+  "Technologie & SaaS",
+  "Tourisme & Hôtellerie",
+  "Secteur public",
+  "Autre",
+] as const;
 
-  const schema = z.object({
-    preferredLocale: z.enum(locales),
-    companyName: z.string().min(2, messages.common.validation.minCompany),
-    workspaceName: z.string().min(2, messages.common.validation.minWorkspace)
-  });
+// ── Schema ────────────────────────────────────────────────────────────────────
 
-  type OnboardingValues = z.infer<typeof schema>;
+const schema = z.object({
+  companyName:   z.string().trim().min(2, "Requis — au moins 2 caractères"),
+  workspaceName: z.string().trim().min(2, "Requis — au moins 2 caractères"),
+  sector:        z.string().optional(),
+  companySize:   z.enum(["pme", "eti", "grand_groupe"]).optional(),
+});
 
-  const form = useForm<OnboardingValues>({
+type FormValues = z.infer<typeof schema>;
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
+export function OnboardingForm() {
+  const [error, setError]     = useState("");
+  const [isPending, start]    = useTransition();
+  const router                = useRouter();
+
+  const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      preferredLocale: defaultLocale,
-      companyName: "",
-      workspaceName: ""
-    }
+      companyName:   "",
+      workspaceName: "",
+      sector:        "",
+      companySize:   undefined,
+    },
   });
 
-  const getErrorMessage = (code?: string) => {
-    if (code === "ALREADY_ONBOARDED") {
-      return messages.onboarding.errors.alreadyOnboarded;
+  // Auto-fill workspace name from company name (only until user edits it manually)
+  const companyName     = form.watch("companyName");
+  const workspaceName   = form.watch("workspaceName");
+
+  useEffect(() => {
+    if (companyName.length >= 2 && !workspaceName) {
+      form.setValue("workspaceName", companyName, { shouldValidate: false });
     }
+  }, [companyName, workspaceName, form]);
 
-    return messages.onboarding.errors.unexpected;
-  };
-
-  const onSubmit = (values: OnboardingValues) => {
-    startTransition(() => {
+  const onSubmit = (values: FormValues) => {
+    start(() => {
       void (async () => {
-        setErrorMessage("");
-
-        const response = await fetch("/api/onboarding", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(values)
+        setError("");
+        const res = await fetch("/api/onboarding", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            companyName:   values.companyName,
+            workspaceName: values.workspaceName,
+            sector:        values.sector   || undefined,
+            companySize:   values.companySize || undefined,
+            // non-redundant defaults — already set at signup
+            preferredLocale: "fr",
+            accountType:     "enterprise",
+          }),
         });
-        const payload = (await response.json().catch(() => null)) as
-          | { code?: string }
-          | null;
 
-        if (!response.ok) {
-          setErrorMessage(getErrorMessage(payload?.code));
+        const payload = await res.json().catch(() => null) as { code?: string } | null;
+
+        if (!res.ok) {
+          setError(
+            payload?.code === "ALREADY_ONBOARDED"
+              ? "Un espace de travail existe déjà pour ce compte."
+              : "Une erreur est survenue, veuillez réessayer."
+          );
           return;
         }
 
-        router.push("/app");
+        router.push("/onboarding/process-focus" as Route);
         router.refresh();
       })();
     });
   };
 
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "10px 12px",
+    borderRadius: 8,
+    border: "1px solid var(--border)",
+    background: "var(--bg-input, var(--bg-primary))",
+    color: "var(--text-primary)",
+    fontSize: 14,
+    outline: "none",
+    boxSizing: "border-box",
+    transition: "border-color 0.15s",
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: 13,
+    fontWeight: 600,
+    color: "var(--text-secondary)",
+    marginBottom: 6,
+  };
+
   return (
-    <Card className="border-primary/10 shadow-soft">
-      <CardContent className="space-y-6 p-8">
-        <p className="text-sm leading-6 text-slate-600">{messages.onboarding.formIntro}</p>
+    <div style={{
+      background: "var(--bg-card)",
+      border: "1px solid var(--border)",
+      borderRadius: "var(--r-xl, 16px)",
+      padding: "2rem",
+    }}>
+      {/* Header */}
+      <div style={{ marginBottom: "1.75rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+          <Building2 size={18} style={{ color: "var(--green)" }} />
+          <h1 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>
+            Votre entreprise
+          </h1>
+        </div>
+        <p style={{ fontSize: 13, color: "var(--text-tertiary)", margin: 0 }}>
+          Ces informations permettent de personnaliser BluePilot pour votre contexte.
+        </p>
+      </div>
 
-        <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="space-y-2">
-            <Label htmlFor="preferredLocale">{messages.forms.preferredLanguage}</Label>
-            <select
-              id="preferredLocale"
-              {...form.register("preferredLocale")}
-              className="flex h-11 w-full rounded-lg border border-border bg-white px-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary/30"
-            >
-              {locales.map((value) => (
-                <option key={value} value={value}>
-                  {messages.common.languages[value]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="companyName">{messages.forms.company}</Label>
-            <Input id="companyName" {...form.register("companyName")} />
-            {form.formState.errors.companyName ? (
-              <p className="text-sm text-rose-600">
-                {form.formState.errors.companyName.message}
-              </p>
-            ) : null}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="workspaceName">{messages.forms.workspaceName}</Label>
-            <Input id="workspaceName" {...form.register("workspaceName")} />
-            <p className="text-sm text-slate-500">{messages.onboarding.createHint}</p>
-            {form.formState.errors.workspaceName ? (
-              <p className="text-sm text-rose-600">
-                {form.formState.errors.workspaceName.message}
-              </p>
-            ) : null}
-          </div>
+      <form onSubmit={form.handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
-          <Button className="w-full" size="lg" type="submit" disabled={isPending}>
-            {messages.onboarding.submitCreate}
-          </Button>
-
-          {errorMessage ? (
-            <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-              {errorMessage}
+        {/* Company name */}
+        <div>
+          <label htmlFor="companyName" style={labelStyle}>
+            Nom de l'entreprise <span style={{ color: "var(--red)" }}>*</span>
+          </label>
+          <input
+            id="companyName"
+            style={inputStyle}
+            placeholder="Acme Corp"
+            {...form.register("companyName")}
+          />
+          {form.formState.errors.companyName && (
+            <p style={{ fontSize: 12, color: "var(--red)", marginTop: 4 }}>
+              {form.formState.errors.companyName.message}
             </p>
-          ) : null}
-        </form>
-      </CardContent>
-    </Card>
+          )}
+        </div>
+
+        {/* Sector */}
+        <div>
+          <label htmlFor="sector" style={labelStyle}>
+            Secteur d'activité
+            <span style={{ fontSize: 11, fontWeight: 400, color: "var(--text-tertiary)", marginLeft: 6 }}>
+              optionnel
+            </span>
+          </label>
+          <select
+            id="sector"
+            style={inputStyle}
+            {...form.register("sector")}
+          >
+            <option value="">Sélectionnez un secteur</option>
+            {SECTORS.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Company size */}
+        <div>
+          <label htmlFor="companySize" style={labelStyle}>
+            Taille de l'entreprise
+            <span style={{ fontSize: 11, fontWeight: 400, color: "var(--text-tertiary)", marginLeft: 6 }}>
+              optionnel
+            </span>
+          </label>
+          <select
+            id="companySize"
+            style={inputStyle}
+            {...form.register("companySize")}
+          >
+            <option value="">Sélectionnez une taille</option>
+            {COMPANY_SIZES.map(({ value, label }) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Separator */}
+        <div style={{ height: 1, background: "var(--border)", margin: "2px 0" }} />
+
+        {/* Workspace name */}
+        <div>
+          <label htmlFor="workspaceName" style={labelStyle}>
+            Nom de l'espace de travail <span style={{ color: "var(--red)" }}>*</span>
+          </label>
+          <input
+            id="workspaceName"
+            style={inputStyle}
+            placeholder="Mon Entreprise"
+            {...form.register("workspaceName")}
+          />
+          <p style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 5 }}>
+            Rempli automatiquement depuis le nom de votre entreprise — modifiable.
+          </p>
+          {form.formState.errors.workspaceName && (
+            <p style={{ fontSize: 12, color: "var(--red)", marginTop: 4 }}>
+              {form.formState.errors.workspaceName.message}
+            </p>
+          )}
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div style={{
+            padding: "10px 14px",
+            borderRadius: 8,
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.25)",
+            fontSize: 13,
+            color: "var(--red)",
+          }}>
+            {error}
+          </div>
+        )}
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={isPending}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            width: "100%",
+            padding: "12px 20px",
+            borderRadius: 10,
+            background: "var(--green)",
+            color: "#fff",
+            fontWeight: 600,
+            fontSize: 14,
+            border: "none",
+            cursor: isPending ? "wait" : "pointer",
+            opacity: isPending ? 0.8 : 1,
+            transition: "opacity 0.15s",
+          }}
+        >
+          {isPending ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              Création en cours…
+            </>
+          ) : (
+            <>
+              Créer mon espace de travail
+              <ArrowRight size={16} />
+            </>
+          )}
+        </button>
+      </form>
+    </div>
   );
 }

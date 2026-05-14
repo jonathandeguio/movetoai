@@ -34,23 +34,6 @@ export async function getProcessDetail(workspaceId: string, processId: string) {
           name: true
         }
       },
-      dataProducts: {
-        select: {
-          dataProduct: {
-            select: {
-              id: true,
-              name: true,
-              medallionStage: true,
-              readinessStatus: true
-            }
-          }
-        },
-        orderBy: {
-          dataProduct: {
-            name: "asc"
-          }
-        }
-      },
       applications: {
         select: {
           application: {

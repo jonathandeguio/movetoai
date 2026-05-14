@@ -77,7 +77,7 @@ export function DecisionSummaryCard({
 }: DecisionSummaryCardProps) {
   if (!decision) {
     return (
-      <Card className="border-dashed border-primary/20 bg-primary/5">
+      <Card className="border-dashed border-[--green-border] bg-[--green-dim]">
         <CardHeader>
           <CardTitle>{noDecisionTitle}</CardTitle>
           <CardDescription>{noDecisionDescription}</CardDescription>
@@ -102,35 +102,35 @@ export function DecisionSummaryCard({
       </CardHeader>
       <CardContent className="space-y-6 pt-0">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-2xl border border-border/80 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <div className="rounded-2xl border border-[--border] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-muted]">
               {boardLabel}
             </p>
-            <p className="mt-2 text-sm font-medium text-slate-950">
+            <p className="mt-2 text-sm font-medium text-[--text-primary]">
               {decision.decisionBoard?.name ?? "-"}
             </p>
           </div>
-          <div className="rounded-2xl border border-border/80 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <div className="rounded-2xl border border-[--border] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-muted]">
               {meetingLabel}
             </p>
-            <p className="mt-2 text-sm font-medium text-slate-950">
+            <p className="mt-2 text-sm font-medium text-[--text-primary]">
               {decision.reviewMeeting?.title ?? "-"}
             </p>
           </div>
-          <div className="rounded-2xl border border-border/80 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <div className="rounded-2xl border border-[--border] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-muted]">
               {decidedByLabel}
             </p>
-            <p className="mt-2 text-sm font-medium text-slate-950">
+            <p className="mt-2 text-sm font-medium text-[--text-primary]">
               {decision.decidedBy?.name ?? "-"}
             </p>
           </div>
-          <div className="rounded-2xl border border-border/80 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <div className="rounded-2xl border border-[--border] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-muted]">
               {budgetLabel}
             </p>
-            <p className="mt-2 text-sm font-medium text-slate-950">
+            <p className="mt-2 text-sm font-medium text-[--text-primary]">
               {decision.approvedBudget
                 ? formatCurrency(locale, Number(decision.approvedBudget), decision.currencyCode ?? "USD")
                 : "-"}
@@ -139,23 +139,23 @@ export function DecisionSummaryCard({
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-          <div className="rounded-2xl border border-border/80 p-4">
-            <p className="text-sm font-semibold text-slate-950">{title}</p>
+          <div className="rounded-2xl border border-[--border] p-4">
+            <p className="text-sm font-semibold text-[--text-primary]">{title}</p>
             {decision.summary ? (
-              <p className="mt-3 text-sm leading-7 text-slate-600">{decision.summary}</p>
+              <p className="mt-3 text-sm leading-7 text-[--text-secondary]">{decision.summary}</p>
             ) : null}
             {decision.rationale ? (
-              <p className="mt-3 text-sm leading-7 text-slate-500">{decision.rationale}</p>
+              <p className="mt-3 text-sm leading-7 text-[--text-muted]">{decision.rationale}</p>
             ) : null}
           </div>
           <div className="space-y-4">
-            <div className="rounded-2xl border border-border/80 p-4">
-              <p className="text-sm font-semibold text-slate-950">{approvalStepsLabel}</p>
+            <div className="rounded-2xl border border-[--border] p-4">
+              <p className="text-sm font-semibold text-[--text-primary]">{approvalStepsLabel}</p>
               <div className="mt-3 space-y-3">
                 {decision.approvalSteps.map((step) => (
-                  <div key={step.id} className="rounded-xl bg-slate-50 px-3 py-3">
+                  <div key={step.id} className="rounded-xl bg-[--bg-hover] px-3 py-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-sm font-medium text-slate-950">
+                      <p className="text-sm font-medium text-[--text-primary]">
                         {step.stepOrder}. {step.approverRoleLabel ?? step.approver?.name ?? "-"}
                       </p>
                       <Badge variant="outline">
@@ -163,7 +163,7 @@ export function DecisionSummaryCard({
                       </Badge>
                     </div>
                     {step.notes ? (
-                      <p className="mt-2 text-sm leading-6 text-slate-600">{step.notes}</p>
+                      <p className="mt-2 text-sm leading-6 text-[--text-secondary]">{step.notes}</p>
                     ) : null}
                   </div>
                 ))}
@@ -171,16 +171,16 @@ export function DecisionSummaryCard({
             </div>
 
             {decision.actionItems.length > 0 ? (
-              <div className="rounded-2xl border border-border/80 p-4">
-                <p className="text-sm font-semibold text-slate-950">{followUpLabel}</p>
+              <div className="rounded-2xl border border-[--border] p-4">
+                <p className="text-sm font-semibold text-[--text-primary]">{followUpLabel}</p>
                 <div className="mt-3 space-y-3">
                   {decision.actionItems.map((item) => (
-                    <div key={item.id} className="rounded-xl bg-slate-50 px-3 py-3">
+                    <div key={item.id} className="rounded-xl bg-[--bg-hover] px-3 py-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-sm font-medium text-slate-950">{item.title}</p>
+                        <p className="text-sm font-medium text-[--text-primary]">{item.title}</p>
                         <Badge variant="secondary">{item.status}</Badge>
                       </div>
-                      <p className="mt-2 text-sm text-slate-600">
+                      <p className="mt-2 text-sm text-[--text-secondary]">
                         {[item.owner?.name, formatDate(locale, item.dueDate)].filter(Boolean).join(" · ")}
                       </p>
                     </div>

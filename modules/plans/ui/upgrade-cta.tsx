@@ -22,9 +22,9 @@ export function UpgradeCta({
   href
 }: UpgradeCtaProps) {
   return (
-    <Card className="border-primary/15 bg-primary/5">
+    <Card className="border-[--green-border] bg-[--green-dim]">
       <CardHeader className="space-y-3">
-        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-deep">
+        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[--green]">
           {eyebrow}
         </div>
         <div className="space-y-2">

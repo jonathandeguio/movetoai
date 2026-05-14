@@ -233,12 +233,12 @@ export async function ensurePermissionCatalog(db: DbClient) {
       },
       update: {
         name: definition.name,
-        description: `${definition.name} permission for BluePilot AI.`
+        description: `${definition.name} permission for Move to AI.`
       },
       create: {
         key: definition.key,
         name: definition.name,
-        description: `${definition.name} permission for BluePilot AI.`
+        description: `${definition.name} permission for Move to AI.`
       }
     });
 

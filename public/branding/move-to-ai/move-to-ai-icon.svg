@@ -1,15 +1,66 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="2" y="2" width="60" height="60" rx="16" fill="#F7FAFF" stroke="#D7E3FF" stroke-width="2"/>
-  <rect x="14" y="40" width="8" height="8" rx="2" fill="#9BBEFF"/>
-  <rect x="24" y="34" width="8" height="8" rx="2" fill="#7EA9FF"/>
-  <rect x="34" y="28" width="8" height="8" rx="2" fill="#4E86FF"/>
-  <rect x="44" y="22" width="8" height="8" rx="2" fill="#1F4DFF"/>
-  <path
-    d="M14 48 C24 42 33 36 42 28 C46 24 50 20 54 16"
-    stroke="#0B1F3A"
-    stroke-width="3.5"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
-  <path d="M54 16 L50 18 M54 16 L52 20" stroke="#0B1F3A" stroke-width="3.5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="ct" x1="36" y1="37" x2="64" y2="51" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#72F0FF"/>
+      <stop offset="100%" stop-color="#00C8E0"/>
+    </linearGradient>
+    <linearGradient id="cr" x1="64" y1="44" x2="64" y2="65" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0395C5"/>
+      <stop offset="100%" stop-color="#016898"/>
+    </linearGradient>
+    <linearGradient id="cl" x1="36" y1="44" x2="36" y2="65" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0272BB"/>
+      <stop offset="100%" stop-color="#014C86"/>
+    </linearGradient>
+    <linearGradient id="ot" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4060B8"/>
+      <stop offset="100%" stop-color="#2D3D98"/>
+    </linearGradient>
+  </defs>
+  <polygon points="50,20 77,35 77,65 50,80 23,65 23,35" fill="none" stroke="#1B5FC0" stroke-width="1.4" stroke-opacity="0.65" stroke-linejoin="round"/>
+  <line x1="50" y1="50" x2="50" y2="20" stroke="#1B5FC0" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="77" y2="35" stroke="#1B5FC0" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="77" y2="65" stroke="#1B5FC0" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="50" y2="80" stroke="#1B5FC0" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="23" y2="65" stroke="#1B5FC0" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="23" y2="35" stroke="#1B5FC0" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="50" cy="33" r="2.8" fill="#2272D6"/>
+  <circle cx="66" cy="42" r="2.8" fill="#2272D6"/>
+  <circle cx="66" cy="58" r="2.8" fill="#2272D6"/>
+  <circle cx="50" cy="67" r="2.8" fill="#2272D6"/>
+  <circle cx="34" cy="58" r="2.8" fill="#2272D6"/>
+  <circle cx="34" cy="42" r="2.8" fill="#2272D6"/>
+  <!-- Top -->
+  <polygon points="50,14 56,17 50,20 44,17" fill="url(#ot)"/>
+  <polygon points="50,20 56,17 56,24 50,27" fill="#1B277A"/>
+  <polygon points="44,17 50,20 50,27 44,24" fill="#14206E"/>
+  <!-- Top-Right -->
+  <polygon points="77,29 83,32 77,35 71,32" fill="url(#ot)"/>
+  <polygon points="77,35 83,32 83,39 77,42" fill="#1B277A"/>
+  <polygon points="71,32 77,35 77,42 71,39" fill="#14206E"/>
+  <!-- Bottom-Right -->
+  <polygon points="77,59 83,62 77,65 71,62" fill="url(#ot)"/>
+  <polygon points="77,65 83,62 83,69 77,72" fill="#1B277A"/>
+  <polygon points="71,62 77,65 77,72 71,69" fill="#14206E"/>
+  <!-- Bottom -->
+  <polygon points="50,74 56,77 50,80 44,77" fill="url(#ot)"/>
+  <polygon points="50,80 56,77 56,84 50,87" fill="#1B277A"/>
+  <polygon points="44,77 50,80 50,87 44,84" fill="#14206E"/>
+  <!-- Bottom-Left -->
+  <polygon points="23,59 29,62 23,65 17,62" fill="url(#ot)"/>
+  <polygon points="23,65 29,62 29,69 23,72" fill="#1B277A"/>
+  <polygon points="17,62 23,65 23,72 17,69" fill="#14206E"/>
+  <!-- Top-Left -->
+  <polygon points="23,29 29,32 23,35 17,32" fill="url(#ot)"/>
+  <polygon points="23,35 29,32 29,39 23,42" fill="#1B277A"/>
+  <polygon points="17,32 23,35 23,42 17,39" fill="#14206E"/>
+  <!-- Central cube -->
+  <polygon points="50,37 64,44 50,51 36,44" fill="url(#ct)"/>
+  <polygon points="50,51 64,44 64,58 50,65" fill="url(#cr)"/>
+  <polygon points="36,44 50,51 50,65 36,58" fill="url(#cl)"/>
+  <polyline points="50,37 64,44 64,58 50,65 36,58 36,44 50,37" stroke="#A8F0FF" stroke-width="0.7" fill="none" stroke-opacity="0.45"/>
+  <line x1="50" y1="51" x2="64" y2="44" stroke="#A8F0FF" stroke-width="0.5" stroke-opacity="0.25"/>
+  <line x1="50" y1="51" x2="36" y2="44" stroke="#A8F0FF" stroke-width="0.5" stroke-opacity="0.25"/>
+  <line x1="50" y1="51" x2="50" y2="65" stroke="#A8F0FF" stroke-width="0.5" stroke-opacity="0.25"/>
+  <ellipse cx="52" cy="42" rx="3.5" ry="1.6" fill="white" opacity="0.28" transform="rotate(-28 52 42)"/>
 </svg>

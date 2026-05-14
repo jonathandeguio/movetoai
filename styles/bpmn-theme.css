@@ -1,0 +1,63 @@
+/* Move to AI — BPMN dark theme override */
+
+.djs-container { background: #0a0e1a !important; }
+.djs-palette {
+  background: #0d1117 !important;
+  border-right: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 0 !important;
+}
+.djs-palette .entry { color: rgba(255,255,255,0.6) !important; }
+.djs-palette .entry:hover {
+  background: rgba(110,231,183,0.08) !important;
+  color: #6ee7b7 !important;
+}
+.djs-palette .sep { border-top-color: rgba(255,255,255,0.06) !important; }
+
+.djs-element .djs-visual > :first-child {
+  fill: rgba(255,255,255,0.04) !important;
+  stroke: rgba(255,255,255,0.2) !important;
+}
+.djs-element.selected .djs-visual > :first-child { stroke: #6ee7b7 !important; }
+.djs-element:hover .djs-visual > :first-child { stroke: rgba(110,231,183,0.5) !important; }
+.djs-element .djs-label {
+  fill: rgba(255,255,255,0.8) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+}
+
+.djs-element[data-element-id^="Start"] .djs-visual > :first-child { stroke: #6ee7b7 !important; }
+.djs-element[data-element-id^="End"] .djs-visual > :first-child {
+  fill: rgba(110,231,183,0.15) !important;
+  stroke: #6ee7b7 !important;
+}
+
+.djs-element .djs-visual > .djs-hit-all { fill: transparent !important; }
+.djs-shape.bpmn-lane > .djs-visual > :first-child {
+  fill: rgba(56,189,248,0.04) !important;
+  stroke: rgba(56,189,248,0.2) !important;
+}
+
+.djs-connection .djs-visual > :first-child { stroke: rgba(255,255,255,0.3) !important; }
+.djs-connection.selected .djs-visual > :first-child { stroke: #6ee7b7 !important; }
+
+.djs-context-pad {
+  background: #0d1117 !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 8px !important;
+}
+.djs-context-pad .entry { color: rgba(255,255,255,0.6) !important; }
+.djs-context-pad .entry:hover {
+  background: rgba(110,231,183,0.08) !important;
+  color: #6ee7b7 !important;
+}
+
+.djs-minimap {
+  background: #060810 !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.djs-container ::-webkit-scrollbar { width: 4px; }
+.djs-container ::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+}

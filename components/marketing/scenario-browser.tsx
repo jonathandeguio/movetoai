@@ -129,8 +129,8 @@ export function ScenarioBrowser({ content }: ScenarioBrowserProps) {
               <p className="mt-2 text-sm leading-7 text-slate-700">{scenario.moveToAi}</p>
             </div>
             <div className="rounded-3xl border border-slate-200 bg-slate-950 p-5 text-white">
-              <p className="text-sm font-semibold text-slate-100">{content.labels.bluePilotAi}</p>
-              <p className="mt-2 text-sm leading-7 text-slate-200">{scenario.bluePilotAi}</p>
+              <p className="text-sm font-semibold text-slate-100">{content.labels.platform}</p>
+              <p className="mt-2 text-sm leading-7 text-slate-200">{scenario.platform}</p>
             </div>
             <div className="space-y-3">
               <p className="text-sm font-semibold text-slate-950">

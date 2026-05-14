@@ -1,6 +1,6 @@
-# BluePilot AI
+# Move to AI
 
-BluePilot AI is a premium B2B SaaS foundation designed to turn business process
+Move to AI is a premium B2B SaaS foundation designed to turn business process
 visibility into a prioritized AI opportunity portfolio. The current MVP focuses on:
 
 - a white-first enterprise visual system
@@ -20,7 +20,7 @@ visibility into a prioritized AI opportunity portfolio. The current MVP focuses 
 
 ## Modular monolith architecture
 
-BluePilot AI stays a single Next.js application, a single Prisma schema, a single MySQL database, and a single deployment unit. The code is being reorganized as a modular monolith:
+Move to AI stays a single Next.js application, a single Prisma schema, a single MySQL database, and a single deployment unit. The code is being reorganized as a modular monolith:
 
 - `app/` routes stay thin and focus on params, guards, and rendering
 - `modules/<domain>/server` contains server-side use cases and query orchestration
@@ -136,7 +136,7 @@ server/
   opportunities.ts
 Dockerfile
 docker-compose.yml
-deploy/nginx/bluepilot.conf.example
+deploy/nginx/movetoai.conf.example
 ```
 
 ## Install and local startup
@@ -190,7 +190,7 @@ Development notes:
 Minimum local env values:
 
 ```env
-DATABASE_URL="mysql://bluepilot:bluepilot@localhost:3306/bluepilot_ai"
+DATABASE_URL="mysql://movetoai:movetoai@localhost:3306/movetoai"
 PORT="3000"
 AUTH_SECRET="replace-with-a-long-random-secret"
 AUTH_URL="http://localhost:3000"
@@ -268,25 +268,25 @@ The seed creates:
 Shared password for the standard seeded demo users:
 
 ```text
-BluePilot!2026
+MoveToAI!2026
 ```
 
 Recommended accounts:
 
-- `admin@bluepilot.ai` - Platform admin
-- `emma.collins@bluepilot.demo` - Super admin
-- `julien.morel@bluepilot.demo` - Workspace admin
-- `sofia.alvarez@bluepilot.demo` - Architect
-- `marcus.reed@bluepilot.demo` - AI portfolio manager
-- `claire.dubois@bluepilot.demo` - Business owner
-- `liam.chen@bluepilot.demo` - Business owner
-- `diego.herrera@bluepilot.demo` - Reviewer
-- `nina.patel@bluepilot.demo` - Viewer
+- `admin@movetoai.app` - Platform admin
+- `emma.collins@movetoai.demo` - Super admin
+- `julien.morel@movetoai.demo` - Workspace admin
+- `sofia.alvarez@movetoai.demo` - Architect
+- `marcus.reed@movetoai.demo` - AI portfolio manager
+- `claire.dubois@movetoai.demo` - Business owner
+- `liam.chen@movetoai.demo` - Business owner
+- `diego.herrera@movetoai.demo` - Reviewer
+- `nina.patel@movetoai.demo` - Viewer
 
 Dedicated admin demo user:
 
 ```text
-admin@bluepilot.ai / Admin123!
+admin@movetoai.app / Admin123!
 ```
 
 ## Minimal auth
@@ -438,5 +438,5 @@ npm run start
 
 ## Nginx example
 
-A minimal reverse-proxy example is available in [bluepilot.conf.example](C:/bluepilot-ai/deploy/nginx/bluepilot.conf.example).
+A minimal reverse-proxy example is available in [movetoai.conf.example](C:/bluepilot-ai/deploy/nginx/movetoai.conf.example).
 Use it as a starting point in front of the app container or a standalone `npm run start` deployment.

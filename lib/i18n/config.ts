@@ -3,7 +3,7 @@ export type Locale = (typeof locales)[number];
 export type LocaleCodeValue = "EN" | "FR" | "ES";
 
 export const defaultLocale: Locale = "en";
-export const localeCookieName = "bluepilot-locale";
+export const localeCookieName = "movetoai-locale";
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && locales.includes(value as Locale);

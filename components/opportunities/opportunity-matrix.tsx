@@ -94,14 +94,14 @@ export function OpportunityMatrix({
       </CardHeader>
       <CardContent className="space-y-4 pt-0">
         <div className="grid gap-4 xl:grid-cols-[160px_1fr]">
-          <div className="rounded-2xl border border-border/80 bg-slate-50 px-4 py-5 text-sm font-semibold text-slate-600">
+          <div className="rounded-2xl border border-[--border] bg-[--bg-hover] px-4 py-5 text-sm font-semibold text-[--text-secondary]">
             {yAxisTitle}
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {scoreBands.map((label) => (
               <div
                 key={label}
-                className="rounded-2xl border border-border/80 bg-slate-50 px-4 py-5 text-sm font-semibold text-slate-600"
+                className="rounded-2xl border border-[--border] bg-[--bg-hover] px-4 py-5 text-sm font-semibold text-[--text-secondary]"
               >
                 {xAxisTitle}: {label}
               </div>
@@ -112,7 +112,7 @@ export function OpportunityMatrix({
         <div className="space-y-4">
           {[2, 1, 0].map((valueBandIndex) => (
             <div key={valueBandIndex} className="grid gap-4 xl:grid-cols-[160px_1fr]">
-              <div className="rounded-2xl border border-border/80 bg-white px-4 py-5 text-sm font-semibold text-slate-950">
+              <div className="rounded-2xl border border-[--border] bg-[--bg-card] px-4 py-5 text-sm font-semibold text-[--text-primary]">
                 {valueBands[valueBandIndex]}
               </div>
               <div className="grid gap-4 md:grid-cols-3">
@@ -122,12 +122,12 @@ export function OpportunityMatrix({
                   return (
                     <div
                       key={`${valueBandIndex}-${scoreBandIndex}`}
-                      className="rounded-2xl border border-border/80 bg-white p-4"
+                      className="rounded-2xl border border-[--border] bg-[--bg-card] p-4"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <Badge>{cell.items.length} {countLabel}</Badge>
                         {cell.items[0]?.expectedValue ? (
-                          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-muted]">
                             {formatCompactCurrency(locale, Number(cell.items[0].expectedValue ?? 0))}
                           </span>
                         ) : null}
@@ -137,16 +137,16 @@ export function OpportunityMatrix({
                           <Link
                             key={item.id}
                             href={`/app/opportunities/${item.id}` as Route}
-                            className="block rounded-xl bg-slate-50 px-3 py-3 transition hover:bg-primary/5"
+                            className="block rounded-xl bg-[--bg-hover] px-3 py-3 transition hover:bg-[--green-dim]"
                           >
-                            <p className="text-sm font-semibold text-slate-950">{item.title}</p>
-                            <p className="mt-1 text-sm text-slate-600">
+                            <p className="text-sm font-semibold text-[--text-primary]">{item.title}</p>
+                            <p className="mt-1 text-sm text-[--text-secondary]">
                               {[item.process.name, item.businessUnit?.name].filter(Boolean).join(" · ")}
                             </p>
                           </Link>
                         ))}
                         {cell.items.length === 0 ? (
-                          <p className="rounded-xl bg-slate-50 px-3 py-4 text-sm text-slate-500">
+                          <p className="rounded-xl bg-[--bg-hover] px-3 py-4 text-sm text-[--text-muted]">
                             {valueBands[valueBandIndex]} · {scoreBands[scoreBandIndex]}
                           </p>
                         ) : null}

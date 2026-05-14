@@ -48,11 +48,11 @@ export function OpportunityPreviewCard({
           <Badge variant="secondary">{getDecisionStatusLabel(locale, decisionStatus)}</Badge>
         ) : null}
       </div>
-      <h3 className="mt-3 text-base font-semibold text-slate-950">{title}</h3>
-      <p className="mt-1 text-sm text-slate-600">
+      <h3 className="mt-3 text-base font-semibold text-[--text-primary]">{title}</h3>
+      <p className="mt-1 text-sm text-[--text-secondary]">
         {[processName, capabilityName, ownerName].filter(Boolean).join(" · ")}
       </p>
-      <p className="mt-2 text-sm text-slate-500">
+      <p className="mt-2 text-sm text-[--text-muted]">
         {scoreLabel} {score ? score.toFixed(0) : "0"} · {valueLabel}{" "}
         {expectedValue ? formatCurrency(expectedValue) : formatCurrency(0)}
       </p>

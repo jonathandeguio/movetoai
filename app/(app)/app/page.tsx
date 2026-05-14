@@ -1,33 +1,33 @@
 import { CheckCircle2 } from "lucide-react";
 
-import { FeatureGatingTable } from "@/components/app/feature-gating-table";
-import { MetricCard } from "@/components/app/metric-card";
-import { PipelineChart } from "@/components/app/pipeline-chart";
-import { Badge } from "@/components/ui/badge";
+import { AriaBanner }          from "@/components/aria/AriaBanner";
+import { FeatureGatingTable }  from "@/components/app/feature-gating-table";
+import { MetricCard }          from "@/components/app/metric-card";
+import { PipelineChart }       from "@/components/app/pipeline-chart";
+import { Badge }               from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getCurrentWorkspaceContext } from "@/lib/current-workspace";
 import {
   getDecisionStatusLabel,
   getOpportunityBadgeLabel,
-  getOpportunityStatusLabel
+  getOpportunityStatusLabel,
 } from "@/lib/demo-labels";
-import { getMessages } from "@/lib/i18n";
-import { getRequestLocale } from "@/lib/i18n/server";
-import { prisma } from "@/lib/prisma";
+import { getMessages }         from "@/lib/i18n";
+import { getRequestLocale }    from "@/lib/i18n/server";
+import { getOverviewPageData } from "@/modules/overview/server/get-overview-page-data";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0
+    style:                "currency",
+    currency:             "USD",
+    maximumFractionDigits: 0,
   }).format(value);
 }
 
 export default async function AppHomePage() {
-  const locale = await getRequestLocale();
+  const locale   = await getRequestLocale();
   const messages = getMessages(locale);
-  const workspaceContext = await getCurrentWorkspaceContext();
-  const workspace = workspaceContext.workspace;
+
+  const { workspace, data } = await getOverviewPageData();
 
   if (!workspace) {
     return (
@@ -36,92 +36,26 @@ export default async function AppHomePage() {
           <CardTitle>{messages.app.shell.noWorkspaceTitle}</CardTitle>
           <CardDescription>{messages.app.shell.noWorkspaceDescription}</CardDescription>
         </CardHeader>
-        <CardContent className="pt-0 text-sm leading-7 text-slate-600">
+        <CardContent className="pt-0 text-sm leading-7 text-[--text-secondary]">
           {messages.app.shell.noWorkspaceHint}
         </CardContent>
       </Card>
     );
   }
 
-  const [processCount, opportunityCount, approvedOrLiveCount, realizedValueAggregate, opportunities] =
-    await Promise.all([
-      prisma.process.count({ where: { workspaceId: workspace.id } }),
-      prisma.opportunity.count({ where: { workspaceId: workspace.id } }),
-      prisma.opportunity.count({
-        where: {
-          workspaceId: workspace.id,
-          status: {
-            in: ["APPROVED", "IN_PROGRESS", "LIVE"]
-          }
-        }
-      }),
-      prisma.opportunity.aggregate({
-        where: { workspaceId: workspace.id },
-        _sum: {
-          realizedValue: true
-        }
-      }),
-      prisma.opportunity.findMany({
-        where: { workspaceId: workspace.id },
-        select: {
-          title: true,
-          status: true,
-          badge: true,
-          overallScore: true,
-          expectedValue: true,
-          realizedValue: true,
-          process: {
-            select: {
-              name: true
-            }
-          },
-          owner: {
-            select: {
-              name: true
-            }
-          },
-          currentDecision: {
-            select: {
-              status: true
-            }
-          }
-        }
-      })
-    ]);
-
-  const processGroups = new Map<string, { totalScore: number; count: number }>();
-  for (const opportunity of opportunities) {
-    const key = opportunity.process.name;
-    const existing = processGroups.get(key) ?? { totalScore: 0, count: 0 };
-    processGroups.set(key, {
-      totalScore: existing.totalScore + Number(opportunity.overallScore ?? 0),
-      count: existing.count + 1
-    });
-  }
-
-  const chartData = Array.from(processGroups.entries())
-    .map(([name, value]) => ({
-      name: name.length > 20 ? `${name.slice(0, 20)}…` : name,
-      score: Number((value.totalScore / value.count).toFixed(0))
-    }))
-    .sort((left, right) => right.score - left.score)
-    .slice(0, 6);
-
-  const spotlightRows = [...opportunities]
-    .sort((left, right) => Number(right.overallScore ?? 0) - Number(left.overallScore ?? 0))
-    .slice(0, 6);
+  const { metrics, spotlightRows, chartData } = data!;
 
   const freePreview = (
     workspace.settings as
       | {
           freePreview?: {
-            usersUsed: number;
-            usersAllowed: number;
-            opportunitiesUsed: number;
-            opportunitiesAllowed: number;
-            aiRequestsUsed: number;
-            aiRequestsAllowed: number;
-            upgradePrompt: string;
+            usersUsed:             number;
+            usersAllowed:          number;
+            opportunitiesUsed:     number;
+            opportunitiesAllowed:  number;
+            aiRequestsUsed:        number;
+            aiRequestsAllowed:     number;
+            upgradePrompt:         string;
           };
         }
       | null
@@ -129,40 +63,42 @@ export default async function AppHomePage() {
 
   const featureRows = [
     {
-      feature: messages.common.labels.multilingual,
-      free: messages.common.featureGating.freeLabel,
-      pro: messages.common.featureGating.proLabel,
-      enterprise: messages.common.featureGating.enterpriseLabel
+      feature:    messages.common.labels.multilingual,
+      free:       messages.common.featureGating.freeLabel,
+      pro:        messages.common.featureGating.proLabel,
+      enterprise: messages.common.featureGating.enterpriseLabel,
     },
     {
-      feature: messages.app.nav.governance.title,
-      free: messages.common.labels.placeholder,
-      pro: messages.common.featureGating.proLabel,
-      enterprise: messages.common.featureGating.enterpriseLabel
+      feature:    messages.app.nav.governance.title,
+      free:       messages.common.labels.placeholder,
+      pro:        messages.common.featureGating.proLabel,
+      enterprise: messages.common.featureGating.enterpriseLabel,
     },
     {
-      feature: messages.app.nav.analytics.title,
-      free: messages.common.featureGating.freeLabel,
-      pro: messages.common.featureGating.proLabel,
-      enterprise: messages.common.featureGating.enterpriseLabel
+      feature:    messages.app.nav.analytics.title,
+      free:       messages.common.featureGating.freeLabel,
+      pro:        messages.common.featureGating.proLabel,
+      enterprise: messages.common.featureGating.enterpriseLabel,
     },
     {
-      feature: messages.app.nav.opportunities.title,
-      free: messages.common.featureGating.freeLabel,
-      pro: messages.common.featureGating.proLabel,
-      enterprise: messages.common.featureGating.enterpriseLabel
-    }
+      feature:    messages.app.nav.opportunities.title,
+      free:       messages.common.featureGating.freeLabel,
+      pro:        messages.common.featureGating.proLabel,
+      enterprise: messages.common.featureGating.enterpriseLabel,
+    },
   ];
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-primary/10 bg-white p-8 shadow-soft-sm">
+      <AriaBanner />
+
+      <section className="rounded-3xl border border-[--green-border] bg-[--bg-card] p-8 shadow-soft-sm">
         <div className="space-y-4">
           <Badge>{messages.app.overview.eyebrow}</Badge>
-          <h2 className="max-w-4xl text-4xl font-semibold tracking-tight text-slate-950 text-balance">
+          <h2 className="max-w-4xl text-4xl font-semibold tracking-tight text-[--text-primary] text-balance">
             {messages.app.overview.title}
           </h2>
-          <p className="max-w-3xl text-base leading-8 text-slate-600">
+          <p className="max-w-3xl text-base leading-8 text-[--text-secondary]">
             {messages.app.overview.subtitle}
           </p>
         </div>
@@ -171,19 +107,19 @@ export default async function AppHomePage() {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           label={messages.app.overview.metrics.processesMapped}
-          value={processCount.toString()}
+          value={metrics.processCount.toString()}
         />
         <MetricCard
           label={messages.app.overview.metrics.portfolioOpportunities}
-          value={opportunityCount.toString()}
+          value={metrics.opportunityCount.toString()}
         />
         <MetricCard
           label={messages.app.overview.metrics.approvedOrLive}
-          value={approvedOrLiveCount.toString()}
+          value={metrics.approvedOrLiveCount.toString()}
         />
         <MetricCard
           label={messages.app.overview.metrics.realizedValue}
-          value={formatCurrency(Number(realizedValueAggregate._sum.realizedValue ?? 0))}
+          value={formatCurrency(metrics.realizedValue)}
         />
       </section>
 
@@ -199,33 +135,30 @@ export default async function AppHomePage() {
             <CardDescription>{messages.app.overview.spotlightDescription}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 pt-0">
-            {spotlightRows.map((opportunity) => (
-              <div
-                key={opportunity.title}
-                className="rounded-2xl border border-border/80 p-4"
-              >
+            {spotlightRows.map((opp) => (
+              <div key={opp.title} className="rounded-2xl border border-[--border] p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline">
-                    {getOpportunityStatusLabel(locale, opportunity.status)}
+                    {getOpportunityStatusLabel(locale, opp.status)}
                   </Badge>
-                  <Badge>{getOpportunityBadgeLabel(locale, opportunity.badge)}</Badge>
-                  {opportunity.currentDecision ? (
+                  <Badge>{getOpportunityBadgeLabel(locale, opp.badge ?? "")}</Badge>
+                  {opp.decisionStatus ? (
                     <Badge variant="secondary">
-                      {getDecisionStatusLabel(locale, opportunity.currentDecision.status)}
+                      {getDecisionStatusLabel(locale, opp.decisionStatus)}
                     </Badge>
                   ) : null}
                 </div>
-                <h3 className="mt-3 text-base font-semibold text-slate-950">
-                  {opportunity.title}
+                <h3 className="mt-3 text-base font-semibold text-[--text-primary]">
+                  {opp.title}
                 </h3>
-                <p className="mt-1 text-sm text-slate-600">
-                  {opportunity.process.name}
-                  {opportunity.owner?.name ? ` · ${opportunity.owner.name}` : ""}
+                <p className="mt-1 text-sm text-[--text-secondary]">
+                  {opp.processName}
+                  {opp.ownerName ? ` · ${opp.ownerName}` : ""}
                 </p>
-                <p className="mt-2 text-sm text-slate-500">
-                  {messages.app.opportunitiesModule.table.score}{" "}
-                  {Number(opportunity.overallScore ?? 0).toFixed(0)} · {messages.app.opportunitiesModule.table.value}{" "}
-                  {formatCurrency(Number(opportunity.expectedValue ?? 0))}
+                <p className="mt-2 text-sm text-[--text-muted]">
+                  {messages.app.opportunitiesModule.table.score} {opp.overallScore.toFixed(0)} ·{" "}
+                  {messages.app.opportunitiesModule.table.value}{" "}
+                  {formatCurrency(opp.expectedValue)}
                 </p>
               </div>
             ))}
@@ -242,22 +175,22 @@ export default async function AppHomePage() {
             {messages.app.overview.checklist.map((item) => (
               <div
                 key={item}
-                className="flex items-start gap-3 rounded-2xl border border-border/80 p-4"
+                className="flex items-start gap-3 rounded-2xl border border-[--border] p-4"
               >
-                <span className="rounded-full bg-primary/10 p-1 text-primary">
+                <span className="rounded-full bg-[--green-dim] p-1 text-[--green]">
                   <CheckCircle2 className="h-4 w-4" />
                 </span>
-                <span className="text-sm leading-6 text-slate-700">{item}</span>
+                <span className="text-sm leading-6 text-[--text-secondary]">{item}</span>
               </div>
             ))}
           </CardContent>
         </Card>
-        <Card className="border-dashed border-primary/20 bg-primary/5">
+        <Card className="border-dashed border-[--green-border] bg-[--green-dim]">
           <CardHeader>
             <CardTitle>{messages.app.overview.freePreviewTitle}</CardTitle>
             <CardDescription>{messages.app.overview.freePreviewDescription}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 pt-0 text-sm leading-6 text-slate-700">
+          <CardContent className="space-y-3 pt-0 text-sm leading-6 text-[--text-secondary]">
             <p>
               {messages.app.overview.freePreviewLabels.users} {freePreview?.usersUsed}/
               {freePreview?.usersAllowed}
@@ -270,7 +203,7 @@ export default async function AppHomePage() {
               {messages.app.overview.freePreviewLabels.aiRequests}{" "}
               {freePreview?.aiRequestsUsed}/{freePreview?.aiRequestsAllowed}
             </p>
-            <p className="text-slate-600">{freePreview?.upgradePrompt}</p>
+            <p className="text-[--text-secondary]">{freePreview?.upgradePrompt}</p>
           </CardContent>
         </Card>
       </section>
@@ -279,19 +212,19 @@ export default async function AppHomePage() {
         title={messages.common.labels.featureGate}
         description={messages.common.featureGating.upgradeHint}
         headers={{
-          feature: messages.common.labels.feature,
-          free: messages.common.labels.free,
-          pro: messages.common.labels.pro,
-          enterprise: messages.common.labels.enterprise
+          feature:    messages.common.labels.feature,
+          free:       messages.common.labels.free,
+          pro:        messages.common.labels.pro,
+          enterprise: messages.common.labels.enterprise,
         }}
         rows={featureRows}
       />
 
-      <Card className="border-dashed border-primary/20 bg-primary/5">
+      <Card className="border-dashed border-[--green-border] bg-[--green-dim]">
         <CardHeader>
           <CardTitle>{messages.app.overview.emptyTitle}</CardTitle>
         </CardHeader>
-        <CardContent className="pt-0 text-sm leading-7 text-slate-600">
+        <CardContent className="pt-0 text-sm leading-7 text-[--text-secondary]">
           {messages.app.overview.emptyDescription}
         </CardContent>
       </Card>

@@ -1,19 +1,20 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, HelpCircle } from "lucide-react";
 
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { UserMenu }         from "@/components/layout/UserMenu";
 import { useLocaleContext } from "@/components/providers/locale-provider";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { HelpPanel }        from "@/components/guide/HelpPanel";
+import { useHelpPanel }     from "@/hooks/useHelpPanel";
 
 type AppTopbarProps = {
-  title: string;
-  subtitle: string;
+  title:         string;
+  subtitle:      string;
   workspaceName: string;
-  planName: string;
-  userLabel: string;
-  roleLabel: string;
+  planName:      string;
+  userLabel:     string;
+  roleLabel:     string;
 };
 
 export function AppTopbar({
@@ -22,43 +23,158 @@ export function AppTopbar({
   workspaceName,
   planName,
   userLabel,
-  roleLabel
+  roleLabel,
 }: AppTopbarProps) {
   const { messages } = useLocaleContext();
+  const { isOpen, activeTab, setActiveTab, open, close } = useHelpPanel();
 
   return (
-    <header className="border-b border-border/80 bg-white/85 px-4 py-5 backdrop-blur md:px-6">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="default">{planName}</Badge>
-            <Badge variant="outline">{workspaceName}</Badge>
-            <Badge variant="outline">{messages.common.labels.featureGate}</Badge>
+    <>
+    <HelpPanel
+      isOpen={isOpen}
+      onClose={close}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    />
+    <header
+      style={{
+        background:    "rgba(6,8,16,0.85)",
+        backdropFilter:"blur(12px)",
+        borderBottom:  "1px solid var(--border-subtle)",
+        padding:       "0.875rem 1.5rem",
+        position:      "sticky",
+        top:           0,
+        zIndex:        40,
+      }}
+    >
+      <div
+        style={{
+          display:        "flex",
+          alignItems:     "center",
+          justifyContent: "space-between",
+          gap:            "1rem",
+          flexWrap:       "wrap",
+        }}
+      >
+        {/* Left: title + badges */}
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem", flexWrap: "wrap" }}>
+            <span
+              style={{
+                fontSize:     "10px",
+                fontWeight:   600,
+                letterSpacing:"0.1em",
+                textTransform:"uppercase",
+                padding:      "2px 8px",
+                borderRadius: "var(--r-pill)",
+                border:       "1px solid var(--green-border)",
+                background:   "var(--green-dim)",
+                color:        "var(--green)",
+              }}
+            >
+              {planName}
+            </span>
+            <span
+              style={{
+                fontSize:     "10px",
+                fontWeight:   500,
+                padding:      "2px 8px",
+                borderRadius: "var(--r-pill)",
+                border:       "1px solid var(--border)",
+                color:        "var(--text-secondary)",
+              }}
+            >
+              {workspaceName}
+            </span>
           </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
-              {title}
-            </h1>
-            <p className="mt-1 text-sm leading-6 text-slate-600">{subtitle}</p>
-          </div>
+          <h1
+            style={{
+              fontSize:    "18px",
+              fontWeight:  700,
+              letterSpacing: "-0.02em",
+              color:       "var(--text-primary)",
+              lineHeight:  1.2,
+            }}
+          >
+            {title}
+          </h1>
+          {subtitle && (
+            <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "2px" }}>
+              {subtitle}
+            </p>
+          )}
         </div>
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <div className="relative min-w-[280px]">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input
-              className="pl-10"
+
+        {/* Right: search + controls */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          {/* Search */}
+          <div style={{ position: "relative" }}>
+            <Search
+              size={14}
+              style={{
+                position:  "absolute",
+                left:      "0.75rem",
+                top:       "50%",
+                transform: "translateY(-50%)",
+                color:     "var(--text-muted)",
+                pointerEvents: "none",
+              }}
+            />
+            <input
               placeholder={messages.app.shell.searchPlaceholder}
+              style={{
+                height:       "36px",
+                width:        "240px",
+                paddingLeft:  "2.25rem",
+                paddingRight: "0.75rem",
+                fontSize:     "13px",
+                borderRadius: "var(--r-lg)",
+                border:       "1px solid var(--border)",
+                background:   "var(--bg-input)",
+                color:        "var(--text-primary)",
+                outline:      "none",
+                transition:   "border-color var(--t-fast)",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "var(--border-focus)")}
+              onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
             />
           </div>
-          <div className="text-right">
-            <p className="text-sm font-medium text-slate-700">{userLabel}</p>
-            {roleLabel ? (
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{roleLabel}</p>
-            ) : null}
-          </div>
+
           <LanguageSwitcher />
+          {/* Help button */}
+          <button
+            data-tour="help-button"
+            onClick={() => open()}
+            title="Centre d'aide"
+            style={{
+              display:        "flex",
+              alignItems:     "center",
+              justifyContent: "center",
+              width:          "36px",
+              height:         "36px",
+              borderRadius:   "var(--r-lg)",
+              border:         "1px solid var(--border)",
+              background:     "var(--bg-input)",
+              color:          "var(--text-secondary)",
+              cursor:         "pointer",
+              transition:     "border-color var(--t-fast), color var(--t-fast)",
+              flexShrink:     0,
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border-focus)";
+              (e.currentTarget as HTMLButtonElement).style.color = "var(--text-primary)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border)";
+              (e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)";
+            }}
+          >
+            <HelpCircle size={16} />
+          </button>
+          <UserMenu userLabel={userLabel} roleLabel={roleLabel} />
         </div>
       </div>
     </header>
+    </>
   );
 }

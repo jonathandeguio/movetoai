@@ -26,13 +26,13 @@ export function AuthLanguageSwitcher({
   };
 
   return (
-    <label className="inline-flex items-center gap-2 text-sm font-medium text-slate-600">
+    <label className="inline-flex items-center gap-2 text-sm font-medium text-[--text-secondary]">
       <span>{messages.common.languages.label}</span>
       <select
         value={locale}
         onChange={(event) => handleLocaleChange(event.target.value as Locale)}
         disabled={isPending}
-        className="h-10 rounded-lg border border-border bg-white px-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary/30"
+        className="h-10 rounded-lg border border-[--border] bg-[--bg-input] px-3 text-sm text-[--text-primary] shadow-sm outline-none transition focus:border-[--border-focus]"
       >
         {locales.map((item) => (
           <option key={item} value={item}>

@@ -15,7 +15,7 @@ export type MarketingScenario = {
   priorityProcesses: string[];
   diagnostic: string;
   moveToAi: string;
-  bluePilotAi: string;
+  platform: string;
   expectedBenefits: string[];
 };
 
@@ -56,7 +56,7 @@ export type MarketingSiteContent = {
     priorityProcesses: string;
     diagnostic: string;
     moveToAi: string;
-    bluePilotAi: string;
+    platform: string;
     expectedBenefits: string;
   };
 };
@@ -121,13 +121,13 @@ const siteContent: MarketingSiteContent = {
         links: [
           { label: "La plateforme", href: "/plateforme" },
           { label: "Cas d'usage & Exemples", href: "/exemples" },
-          { label: "Exemples par taille", href: "/exemples" }
+          { label: "Exemples par taille", href: "/exemples#taille" }
         ]
       },
       {
         title: "References",
         links: [
-          { label: "Exemples par secteur", href: "/exemples" },
+          { label: "Exemples par secteur", href: "/exemples#secteur" },
           { label: "Confidentialite", href: "/legal/privacy" },
           { label: "Conditions", href: "/legal/terms" }
         ]
@@ -142,7 +142,7 @@ const siteContent: MarketingSiteContent = {
     priorityProcesses: "Processus prioritaires",
     diagnostic: "Diagnostic guide dans la plateforme (LLM)",
     moveToAi: "Ce que Move to AI apporte",
-    bluePilotAi: "Comment la plateforme est utilisee",
+    platform: "Move to AI en pratique",
     expectedBenefits: "Benefices attendus"
   }
 };
@@ -157,7 +157,7 @@ const sizeProfiles: Record<
   {
     context: string;
     moveToAi: string;
-    bluePilotAi: string;
+    platform: string;
     expectedBenefits: string[];
   }
 > = {
@@ -166,7 +166,7 @@ const sizeProfiles: Record<
       "Organisation qui veut avancer vite avec des priorites claires.",
     moveToAi:
       "Aide a retenir 3 processus a fort levier et cadrer des usages IA utiles.",
-    bluePilotAi:
+    platform:
       "Apporte un cockpit simple pour suivre opportunites, actions et progression.",
     expectedBenefits: [
       "Decision plus rapide",
@@ -178,7 +178,7 @@ const sizeProfiles: Record<
       "Organisation intermediaire qui doit aligner plusieurs equipes.",
     moveToAi:
       "Cadre la trajectoire, arbitre les priorites et la gouvernance.",
-    bluePilotAi:
+    platform:
       "Structure portefeuille, workflows de decision et suivi de valeur.",
     expectedBenefits: [
       "Priorisation plus claire",
@@ -190,7 +190,7 @@ const sizeProfiles: Record<
       "Organisation multi-entites avec un portefeuille IA vaste.",
     moveToAi:
       "Structure le programme et clarifie les domaines prioritaires.",
-    bluePilotAi:
+    platform:
       "Devient le cockpit transverse pour prioriser, arbitrer et suivre la valeur.",
     expectedBenefits: [
       "Portefeuille plus arbitre",
@@ -397,9 +397,9 @@ export function buildMarketingScenario(
     moveToAi:
       override?.moveToAi ??
       `${sizeProfile.moveToAi} Le travail se concentre sur des processus reels et des priorites explicites.`,
-    bluePilotAi:
-      override?.bluePilotAi ??
-      `${sizeProfile.bluePilotAi} La plateforme relie priorisation, gouvernance, plans d'action et valeur attendue.`,
+    platform:
+      override?.platform ??
+      `${sizeProfile.platform} La plateforme relie priorisation, gouvernance, plans d'action et valeur attendue.`,
     expectedBenefits: [
       ...sizeProfile.expectedBenefits,
       ...industryProfile.expectedBenefits,

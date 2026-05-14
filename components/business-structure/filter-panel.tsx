@@ -70,7 +70,7 @@ export function BusinessStructureFilterPanel({
               id={selectName}
               name={selectName}
               defaultValue={selectValue}
-              className="flex h-11 w-full rounded-lg border border-border bg-white px-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary/30"
+              className="flex h-11 w-full rounded-lg border border-[--border] bg-[--bg-input] px-3 text-sm text-[--text-primary] shadow-sm outline-none transition focus:border-[--border-focus]"
             >
               {selectOptions.map((option) => (
                 <option key={option.value || "all"} value={option.value}>

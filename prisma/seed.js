@@ -4,7 +4,7 @@ const { randomBytes, pbkdf2Sync } = require("node:crypto");
 
 const prisma = new PrismaClient();
 
-const DEMO_PASSWORD = process.env.DEMO_PASSWORD || "BluePilot!2026";
+const DEMO_PASSWORD = process.env.DEMO_PASSWORD || "MoveToAI!2026";
 const DEMO_TENANT_SLUG = "northstar-group-demo";
 const DEMO_WORKSPACE_SLUG = "executive-ai-portfolio";
 
@@ -187,46 +187,30 @@ const PERMISSIONS = [
 
 const ROLE_DEFINITIONS = [
   {
-    code: "SUPER_ADMIN",
-    name: "Super admin",
-    description: "Full platform administration across the demo tenant.",
+    code: "WORKSPACE_ADMIN",
+    name: "Workspace Admin",
+    description: "Operational owner of the workspace — manages team, settings and billing.",
     permissionKeys: PERMISSIONS.map(([key]) => key)
   },
   {
-    code: "WORKSPACE_ADMIN",
-    name: "Workspace admin",
-    description: "Operational owner of the workspace and team access.",
+    code: "ENTERPRISE_ARCHITECT",
+    name: "Enterprise Architect",
+    description: "Owns process, application and data mapping — technical authority for the transformation.",
     permissionKeys: [
       "workspace.view",
-      "workspace.manage",
-      "users.manage",
-      "roles.manage",
       "business-structure.manage",
       "opportunities.manage",
       "scoring.manage",
       "governance.manage",
-      "initiatives.manage",
       "analytics.view",
-      "settings.manage"
-    ]
-  },
-  {
-    code: "ARCHITECT",
-    name: "Architect",
-    description: "Owns process, application, and data mapping.",
-    permissionKeys: [
-      "workspace.view",
-      "business-structure.manage",
-      "opportunities.manage",
-      "scoring.manage",
-      "analytics.view",
+      "audit.view",
       "integrations.manage"
     ]
   },
   {
-    code: "AI_PORTFOLIO_MANAGER",
-    name: "AI portfolio manager",
-    description: "Runs intake, prioritization, and governance preparation.",
+    code: "TRANSFORMATION_MANAGER",
+    name: "Transformation Manager",
+    description: "Drives intake, prioritization, governance and value tracking for the AI portfolio.",
     permissionKeys: [
       "workspace.view",
       "business-structure.manage",
@@ -236,110 +220,60 @@ const ROLE_DEFINITIONS = [
       "initiatives.manage",
       "analytics.view"
     ]
-  },
-  {
-    code: "BUSINESS_OWNER",
-    name: "Business owner",
-    description: "Sponsors value hypotheses and delivery outcomes.",
-    permissionKeys: [
-      "workspace.view",
-      "opportunities.manage",
-      "analytics.view",
-      "initiatives.manage"
-    ]
-  },
-  {
-    code: "REVIEWER",
-    name: "Reviewer",
-    description: "Participates in decisions, approvals, and risk reviews.",
-    permissionKeys: [
-      "workspace.view",
-      "governance.manage",
-      "analytics.view",
-      "audit.view"
-    ]
-  },
-  {
-    code: "VIEWER",
-    name: "Viewer",
-    description: "Read-only access to portfolio dashboards and summaries.",
-    permissionKeys: ["workspace.view", "analytics.view"]
   }
 ];
 
 const USER_DEFINITIONS = [
   {
-    email: "admin@bluepilot.ai",
-    name: "BluePilot Admin",
-    roleCode: "SUPER_ADMIN",
+    email: "admin@movetoai.app",
+    name: "Move to AI Admin",
+    roleCode: "WORKSPACE_ADMIN",
+    isPlatformAdmin: true,
     locale: "EN",
     password: "Admin123!",
     jobTitle: "Platform Administrator",
+    userFunction: "transformation_manager",
     preferences: { homePage: "overview", seedAccount: true }
   },
   {
-    email: "emma.collins@bluepilot.demo",
-    name: "Emma Collins",
-    roleCode: "SUPER_ADMIN",
-    locale: "EN",
-    jobTitle: "Group AI Transformation Director",
-    preferences: { homePage: "overview", sectorFocus: ["finance", "retail", "manufacturing"] }
-  },
-  {
-    email: "julien.morel@bluepilot.demo",
+    email: "julien.morel@movetoai.demo",
     name: "Julien Morel",
     roleCode: "WORKSPACE_ADMIN",
+    isPlatformAdmin: false,
     locale: "FR",
     jobTitle: "Enterprise Platform Lead",
+    userFunction: "transformation_manager",
     preferences: { homePage: "governance", reviewCadence: "monthly" }
   },
   {
-    email: "sofia.alvarez@bluepilot.demo",
+    email: "sofia.alvarez@movetoai.demo",
     name: "Sofia Alvarez",
-    roleCode: "ARCHITECT",
+    roleCode: "ENTERPRISE_ARCHITECT",
+    isPlatformAdmin: false,
     locale: "ES",
     jobTitle: "Enterprise Architect",
+    userFunction: "enterprise_architect",
     preferences: { homePage: "processes", showDataSources: true }
   },
   {
-    email: "marcus.reed@bluepilot.demo",
+    email: "marcus.reed@movetoai.demo",
     name: "Marcus Reed",
-    roleCode: "AI_PORTFOLIO_MANAGER",
+    roleCode: "TRANSFORMATION_MANAGER",
+    isPlatformAdmin: false,
     locale: "EN",
     jobTitle: "AI Portfolio Manager",
+    userFunction: "transformation_manager",
     preferences: { homePage: "opportunities", favoriteTemplate: "BALANCED_PORTFOLIO" }
   },
   {
-    email: "claire.dubois@bluepilot.demo",
+    email: "claire.dubois@movetoai.demo",
     name: "Claire Dubois",
-    roleCode: "BUSINESS_OWNER",
+    roleCode: "TRANSFORMATION_MANAGER",
+    isPlatformAdmin: false,
     locale: "FR",
     jobTitle: "VP Finance Transformation",
+    userFunction: "transformation_manager",
     preferences: { businessUnit: "financial-services" }
-  },
-  {
-    email: "liam.chen@bluepilot.demo",
-    name: "Liam Chen",
-    roleCode: "BUSINESS_OWNER",
-    locale: "EN",
-    jobTitle: "VP Operations and Commercial Excellence",
-    preferences: { businessUnit: "operations-retail-manufacturing" }
-  },
-  {
-    email: "diego.herrera@bluepilot.demo",
-    name: "Diego Herrera",
-    roleCode: "REVIEWER",
-    locale: "ES",
-    jobTitle: "Risk and Compliance Reviewer",
-    preferences: { homePage: "governance", frameworks: ["EU AI Act", "GDPR", "SOX"] }
-  },
-  {
-    email: "nina.patel@bluepilot.demo",
-    name: "Nina Patel",
-    roleCode: "VIEWER",
-    locale: "EN",
-    jobTitle: "Chief of Staff to COO",
-    preferences: { homePage: "analytics", digest: "weekly" }
   }
 ];
 
@@ -1582,8 +1516,8 @@ const INITIATIVES = [
 
 function getBusinessOwnerEmail(processDefinition) {
   return processDefinition.businessUnitSlug === "financial-services"
-    ? "claire.dubois@bluepilot.demo"
-    : "liam.chen@bluepilot.demo";
+    ? "claire.dubois@movetoai.demo"
+    : "liam.chen@movetoai.demo";
 }
 
 function getSponsorEmail(processDefinition) {
@@ -1592,16 +1526,16 @@ function getSponsorEmail(processDefinition) {
     processDefinition.domainSlug === "hr-workforce" ||
     processDefinition.domainSlug === "it-service-operations"
   ) {
-    return "julien.morel@bluepilot.demo";
+    return "julien.morel@movetoai.demo";
   }
 
-  return "emma.collins@bluepilot.demo";
+  return "emma.collins@movetoai.demo";
 }
 
 function getAssessorEmail(processDefinition) {
   return processDefinition.domainSlug === "it-service-operations"
-    ? "sofia.alvarez@bluepilot.demo"
-    : "marcus.reed@bluepilot.demo";
+    ? "sofia.alvarez@movetoai.demo"
+    : "marcus.reed@movetoai.demo";
 }
 
 function getBoardSlug(processDefinition, blueprint) {
@@ -1724,7 +1658,7 @@ function buildSummary(processDefinition, blueprint) {
 }
 
 function buildHypothesis(processDefinition, blueprint) {
-  return `If BluePilot AI operationalizes ${blueprint.title.toLowerCase()} for ${processDefinition.name.toLowerCase()}, the team can reduce manual effort, improve cycle time, and move a clearer business case into governance.`;
+  return `If Move to AI operationalizes ${blueprint.title.toLowerCase()} for ${processDefinition.name.toLowerCase()}, the team can reduce manual effort, improve cycle time, and move a clearer business case into governance.`;
 }
 
 function buildDecisionSummary(blueprint, decisionStatus) {
@@ -1808,7 +1742,7 @@ async function seedPermissions() {
       create: {
         key,
         name,
-        description: `${name} permission for the BluePilot AI demo workspace.`
+        description: `${name} permission for the Move to AI demo workspace.`
       }
     });
   }
@@ -1852,6 +1786,18 @@ async function cleanupDemoData() {
   });
 
   if (existingTenant) {
+    const workspaces = await prisma.workspace.findMany({
+      where: { tenantId: existingTenant.id },
+      select: { id: true }
+    });
+    const workspaceIds = workspaces.map((w) => w.id);
+
+    if (workspaceIds.length > 0) {
+      await prisma.opportunity.deleteMany({
+        where: { workspaceId: { in: workspaceIds } }
+      });
+    }
+
     await prisma.tenant.delete({
       where: {
         id: existingTenant.id
@@ -1881,7 +1827,7 @@ async function main() {
       slug: DEMO_TENANT_SLUG,
       subscriptionPlanId: plans.ENTERPRISE.id,
       subscriptionStatus: "ACTIVE",
-      billingEmail: "billing@bluepilot.demo",
+      billingEmail: "billing@movetoai.demo",
       trialEndsAt: daysFromNow(30),
       planActivatedAt: daysAgo(120),
       settings: {
@@ -1933,7 +1879,7 @@ async function main() {
       settings: {
         demoMode: true,
         sectors: ["finance", "retail", "manufacturing"],
-        narrative: "Enterprise showcase workspace for BluePilot AI.",
+        narrative: "Enterprise showcase workspace for Move to AI.",
         freePreview: {
           usersUsed: 5,
           usersAllowed: 5,
@@ -1979,6 +1925,8 @@ async function main() {
         preferredLocale: userDefinition.locale,
         status: "ACTIVE",
         jobTitle: userDefinition.jobTitle,
+        userFunction: userDefinition.userFunction ?? "transformation_manager",
+        isPlatformAdmin: userDefinition.isPlatformAdmin ?? false,
         preferences: userDefinition.preferences,
         lastLoginAt: daysAgo(index + 1)
       }
@@ -2018,7 +1966,7 @@ async function main() {
         businessUnitId: businessUnitMap[businessUnitSlug].id,
         name,
         slug,
-        description: `${name} domain in the BluePilot AI demo portfolio.`,
+        description: `${name} domain in the Move to AI demo portfolio.`,
         nameTranslations: localize(name)
       }
     });
@@ -2085,7 +2033,7 @@ async function main() {
   for (const processDefinition of PROCESS_DEFINITIONS) {
     const ownerEmail =
       processDefinition.domainSlug === "it-service-operations"
-        ? "sofia.alvarez@bluepilot.demo"
+        ? "sofia.alvarez@movetoai.demo"
         : getBusinessOwnerEmail(processDefinition);
 
     const processRecord = await prisma.process.create({
@@ -2173,7 +2121,7 @@ async function main() {
         name,
         slug,
         color,
-        description: `${name} tag in the BluePilot AI demo workspace.`,
+        description: `${name} tag in the Move to AI demo workspace.`,
         nameTranslations: localize(name)
       }
     });
@@ -2239,7 +2187,7 @@ async function main() {
   boardMap["ai-portfolio-board"] = await prisma.decisionBoard.create({
     data: {
       workspaceId: workspace.id,
-      chairId: userMap["emma.collins@bluepilot.demo"].id,
+      chairId: userMap["emma.collins@movetoai.demo"].id,
       businessUnitId: null,
       name: "AI Portfolio Board",
       slug: "ai-portfolio-board",
@@ -2250,7 +2198,7 @@ async function main() {
   boardMap["risk-and-compliance-council"] = await prisma.decisionBoard.create({
     data: {
       workspaceId: workspace.id,
-      chairId: userMap["julien.morel@bluepilot.demo"].id,
+      chairId: userMap["julien.morel@movetoai.demo"].id,
       businessUnitId: businessUnitMap["financial-services"].id,
       name: "Risk and Compliance Council",
       slug: "risk-and-compliance-council",
@@ -2347,7 +2295,7 @@ async function main() {
         painPointId: painPointMap[processDefinition.slug].id,
         ownerId: userMap[blueprint.ownerEmail].id,
         sponsorId: userMap[blueprint.sponsorEmail].id,
-        createdById: userMap["marcus.reed@bluepilot.demo"].id,
+        createdById: userMap["marcus.reed@movetoai.demo"].id,
         opportunityTypeId: opportunityTypeMap[blueprint.typeCode].id,
         scoreTemplateId: scoreTemplateMap[templateCode].id,
         title: blueprint.title,
@@ -2478,7 +2426,7 @@ async function main() {
         data: {
           opportunityId: opportunityRecord.id,
           scoreTemplateId: templateRecord.id,
-          assessorId: userMap["marcus.reed@bluepilot.demo"].id,
+          assessorId: userMap["marcus.reed@movetoai.demo"].id,
           assessmentType: "INITIAL",
           summary: `Initial triage for ${blueprint.title}.`,
           notes: "Historic baseline assessment retained for the demo.",
@@ -2537,8 +2485,8 @@ async function main() {
         reviewMeetingId: reviewMeetingMap[reviewMeetingSlug].id,
         decidedById:
           boardSlug === "risk-and-compliance-council"
-            ? userMap["diego.herrera@bluepilot.demo"].id
-            : userMap["emma.collins@bluepilot.demo"].id,
+            ? userMap["diego.herrera@movetoai.demo"].id
+            : userMap["emma.collins@movetoai.demo"].id,
         status: blueprint.decisionStatus,
         summary: buildDecisionSummary(blueprint, blueprint.decisionStatus),
         rationale: `${blueprint.title} was reviewed against value, readiness, governance fit, and portfolio sequencing.`,
@@ -2585,8 +2533,8 @@ async function main() {
         decisionId: decision.id,
         approverId:
           boardSlug === "risk-and-compliance-council"
-            ? userMap["diego.herrera@bluepilot.demo"].id
-            : userMap["marcus.reed@bluepilot.demo"].id,
+            ? userMap["diego.herrera@movetoai.demo"].id
+            : userMap["marcus.reed@movetoai.demo"].id,
         stepOrder: 2,
         approverRoleLabel:
           boardSlug === "risk-and-compliance-council" ? "Risk reviewer" : "Portfolio manager",
@@ -2606,8 +2554,8 @@ async function main() {
           reviewMeetingId: reviewMeetingMap[reviewMeetingSlug].id,
           ownerId:
             blueprint.decisionStatus === "REJECTED"
-              ? userMap["marcus.reed@bluepilot.demo"].id
-              : userMap["sofia.alvarez@bluepilot.demo"].id,
+              ? userMap["marcus.reed@movetoai.demo"].id
+              : userMap["sofia.alvarez@movetoai.demo"].id,
           title:
             blueprint.decisionStatus === "REJECTED"
               ? `Refine business case for ${blueprint.title}`
@@ -2801,7 +2749,7 @@ async function main() {
   for (const blueprint of Object.values(opportunityBlueprintMap)) {
     const owner = userMap[blueprint.ownerEmail];
     const sponsor = userMap[blueprint.sponsorEmail];
-    const reviewer = userMap["diego.herrera@bluepilot.demo"];
+    const reviewer = userMap["diego.herrera@movetoai.demo"];
 
     const commentBodies = [];
     if (["APPROVED", "IN_PROGRESS", "LIVE"].includes(blueprint.status)) {
@@ -2815,7 +2763,7 @@ async function main() {
       ]);
     } else if (blueprint.status === "PRIORITIZED" || blueprint.status === "ASSESSING") {
       commentBodies.push([
-        userMap["marcus.reed@bluepilot.demo"].id,
+        userMap["marcus.reed@movetoai.demo"].id,
         `Keep ${blueprint.title.toLowerCase()} in the active portfolio while we tighten baseline and dependency evidence.`
       ]);
     } else {
@@ -2866,8 +2814,8 @@ async function main() {
           opportunityId: opportunityMap[blueprint.slug].id,
           ownerId:
             blueprint.processDefinition.domainSlug === "it-service-operations"
-              ? userMap["sofia.alvarez@bluepilot.demo"].id
-              : userMap["diego.herrera@bluepilot.demo"].id,
+              ? userMap["sofia.alvarez@movetoai.demo"].id
+              : userMap["diego.herrera@movetoai.demo"].id,
           title: riskItem.title,
           description: riskItem.description,
           severity: riskItem.severity,
@@ -2908,7 +2856,7 @@ async function main() {
       await prisma.complianceCheck.create({
         data: {
           opportunityId: opportunityMap[blueprint.slug].id,
-          ownerId: userMap["diego.herrera@bluepilot.demo"].id,
+          ownerId: userMap["diego.herrera@movetoai.demo"].id,
           framework,
           controlName,
           requirement: `${framework} control review for ${blueprint.title}.`,
@@ -2935,7 +2883,7 @@ async function main() {
         workspaceId: workspace.id,
         initiativeId: initiative.id,
         opportunityId: opportunityMap[blueprint.slug].id,
-        uploadedById: userMap["julien.morel@bluepilot.demo"].id,
+        uploadedById: userMap["julien.morel@movetoai.demo"].id,
         kind: "DOCUMENT",
         fileName: `${slug}.pdf`,
         storageKey: `demo/${slug}.pdf`,
@@ -2956,7 +2904,7 @@ async function main() {
         decisionId: decision.id,
         opportunityId: opportunityMap[slug].id,
         reviewMeetingId: decision.reviewMeetingId,
-        uploadedById: userMap["emma.collins@bluepilot.demo"].id,
+        uploadedById: userMap["emma.collins@movetoai.demo"].id,
         kind: "DOCUMENT",
         fileName: `${slug}-decision-memo.pdf`,
         storageKey: `demo/${slug}-decision-memo.pdf`,
@@ -3021,7 +2969,7 @@ async function main() {
       data: {
         tenantId: tenant.id,
         workspaceId: workspace.id,
-        userId: userMap["marcus.reed@bluepilot.demo"].id,
+        userId: userMap["marcus.reed@movetoai.demo"].id,
         usageQuotaId: quotaMap[limitKey].id,
         type,
         quantity,
@@ -3038,7 +2986,7 @@ async function main() {
     data: {
       tenantId: tenant.id,
       workspaceId: workspace.id,
-      userId: userMap["emma.collins@bluepilot.demo"].id,
+      userId: userMap["emma.collins@movetoai.demo"].id,
       type: "AI_REQUEST",
       quantity: 30,
       occurredAt: daysAgo(1),
@@ -3059,7 +3007,7 @@ async function main() {
       opportunityMap["billing-anomaly-detection"].id,
       "Billing anomaly detection approved by the AI Portfolio Board.",
       "USER",
-      userMap["emma.collins@bluepilot.demo"].id
+      userMap["emma.collins@movetoai.demo"].id
     ],
     [
       "opportunity.live",
@@ -3067,7 +3015,7 @@ async function main() {
       opportunityMap["demand-forecasting"].id,
       "Demand forecasting is live with realized value visible in the portfolio.",
       "USER",
-      userMap["marcus.reed@bluepilot.demo"].id
+      userMap["marcus.reed@movetoai.demo"].id
     ],
     [
       "initiative.started",
@@ -3075,7 +3023,7 @@ async function main() {
       initiativeMap["contact-center-assist-rollout"].id,
       "Contact center assist rollout moved to delivery.",
       "USER",
-      userMap["liam.chen@bluepilot.demo"].id
+      userMap["liam.chen@movetoai.demo"].id
     ],
     [
       "audit.preview.enabled",
@@ -3099,7 +3047,7 @@ async function main() {
       opportunityMap["resume-screening-bias-monitor"].id,
       "High-risk HR opportunity deferred pending fairness and control evidence.",
       "USER",
-      userMap["diego.herrera@bluepilot.demo"].id
+      userMap["diego.herrera@movetoai.demo"].id
     ],
     [
       "user.invited",
@@ -3107,7 +3055,7 @@ async function main() {
       workspace.id,
       "Leadership team invited into the demo workspace.",
       "USER",
-      userMap["julien.morel@bluepilot.demo"].id
+      userMap["julien.morel@movetoai.demo"].id
     ],
     [
       "value.realized",
@@ -3115,7 +3063,7 @@ async function main() {
       opportunityMap["invoice-data-extraction"].id,
       "Invoice data extraction is already realizing measurable value.",
       "USER",
-      userMap["claire.dubois@bluepilot.demo"].id
+      userMap["claire.dubois@movetoai.demo"].id
     ]
   ];
 
@@ -3137,7 +3085,7 @@ async function main() {
     });
   }
 
-  console.log("BluePilot AI demo seed complete.");
+  console.log("Move to AI demo seed complete.");
   console.log(`Tenant: ${tenant.name}`);
   console.log(`Workspace: ${workspace.name}`);
   console.log(`Users: ${USER_DEFINITIONS.length}`);
@@ -3145,12 +3093,12 @@ async function main() {
   console.log(`Opportunities: ${OPPORTUNITIES.length}`);
   console.log(`Initiatives: ${INITIATIVES.length}`);
   console.log(`Demo password: ${DEMO_PASSWORD}`);
-  console.log("Admin user: admin@bluepilot.ai / Admin123!");
+  console.log("Admin user: admin@movetoai.app / Admin123!");
 }
 
 main()
   .catch((error) => {
-    console.error("BluePilot AI demo seed failed.");
+    console.error("Move to AI demo seed failed.");
     console.error(error);
     process.exitCode = 1;
   })

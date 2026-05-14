@@ -9,5 +9,16 @@ npm-debug.log*
 .env.development.local
 .env.production.local
 .env.test.local
+.env.test
 tsconfig.tsbuildinfo
 .DS_Store
+
+# Server deployment — fichiers générés (ne jamais versionner)
+INSTALLATION_CREDENTIALS.txt
+.env.update-backup
+ecosystem.config.js
+
+# Logs et backups serveur
+/opt/movetoai/
+scripts/server/logs/
+scripts/server/*.log

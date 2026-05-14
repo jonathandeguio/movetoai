@@ -24,15 +24,21 @@ const authDictionaries = {
       name: "Full name",
       email: "Work email",
       password: "Password",
-      preferredLanguage: "Preferred language"
+      preferredLanguage: "Preferred language",
+      userFunctionLabel: "Your function",
+      userFunctionPlaceholder: "Select your function",
+      userFunctionOptions: {
+        transformation_manager: "Transformation Manager / Executive / Business Owner",
+        enterprise_architect: "Enterprise Architect / IT Manager / Consultant"
+      }
     },
     auth: {
       login: {
         badge: "Login",
-        title: "Log in to BluePilot AI",
+        title: "Log in to Move to AI",
         subtitle: "Access your secure workspace and AI opportunity portfolio.",
         submit: "Log in",
-        footer: "New to BluePilot AI?",
+        footer: "New to Move to AI?",
         invalidCredentials: "Invalid email or password."
       },
       signup: {
@@ -72,15 +78,21 @@ const authDictionaries = {
       name: "Nom complet",
       email: "Email professionnel",
       password: "Mot de passe",
-      preferredLanguage: "Langue preferee"
+      preferredLanguage: "Langue preferee",
+      userFunctionLabel: "Votre fonction",
+      userFunctionPlaceholder: "Selectionnez votre fonction",
+      userFunctionOptions: {
+        transformation_manager: "Responsable Transformation / Dirigeant / Métier",
+        enterprise_architect: "Architecte d'Entreprise / IT Manager / Consultant"
+      }
     },
     auth: {
       login: {
         badge: "Connexion",
-        title: "Connexion a BluePilot AI",
+        title: "Connexion a Move to AI",
         subtitle: "Accedez a votre espace securise et a votre portefeuille d'opportunites IA.",
         submit: "Se connecter",
-        footer: "Nouveau sur BluePilot AI ?",
+        footer: "Nouveau sur Move to AI ?",
         invalidCredentials: "Email ou mot de passe invalide."
       },
       signup: {
@@ -120,15 +132,21 @@ const authDictionaries = {
       name: "Nombre completo",
       email: "Correo profesional",
       password: "Contrasena",
-      preferredLanguage: "Idioma preferido"
+      preferredLanguage: "Idioma preferido",
+      userFunctionLabel: "Tu funcion",
+      userFunctionPlaceholder: "Selecciona tu funcion",
+      userFunctionOptions: {
+        transformation_manager: "Responsable de Transformacion / Directivo / Negocio",
+        enterprise_architect: "Arquitecto Empresarial / IT Manager / Consultor"
+      }
     },
     auth: {
       login: {
         badge: "Acceso",
-        title: "Accede a BluePilot AI",
+        title: "Accede a Move to AI",
         subtitle: "Entra en tu workspace seguro y en tu cartera de oportunidades de IA.",
         submit: "Iniciar sesion",
-        footer: "Nuevo en BluePilot AI?",
+        footer: "Nuevo en Move to AI?",
         invalidCredentials: "Correo o contrasena invalidos."
       },
       signup: {

@@ -80,19 +80,19 @@ export function OpportunityKanban({
           {lanes.map((lane) => (
             <div
               key={lane.workflowStatus}
-              className="rounded-2xl border border-border/80 bg-slate-50/80 p-4"
+              className="rounded-2xl border border-[--border] bg-[--bg-hover] p-4"
             >
               <div className="flex items-center justify-between gap-3">
                 <Badge variant={getWorkflowBadgeVariant(lane.workflowStatus)}>
                   {getOpportunityWorkflowLabel(locale, lane.workflowStatus)}
                 </Badge>
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-muted]">
                   {lane.opportunities.length} {countLabel}
                 </span>
               </div>
               <div className="mt-4 space-y-3">
                 {lane.opportunities.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-border/80 bg-white px-3 py-5 text-sm text-slate-500">
+                  <div className="rounded-xl border border-dashed border-[--border] bg-[--bg-card] px-3 py-5 text-sm text-[--text-muted]">
                     {getOpportunityWorkflowLabel(locale, lane.workflowStatus)}
                   </div>
                 ) : (
@@ -100,7 +100,7 @@ export function OpportunityKanban({
                     <Link
                       key={opportunity.id}
                       href={`/app/opportunities/${opportunity.id}` as Route}
-                      className="block rounded-2xl border border-border/80 bg-white p-4 transition hover:border-primary/20 hover:bg-primary/5"
+                      className="block rounded-2xl border border-[--border] bg-[--bg-card] p-4 transition hover:border-[--green-border] hover:bg-[--green-dim]"
                     >
                       <div className="flex flex-wrap gap-2">
                         <Badge>{getOpportunityBadgeLabel(locale, opportunity.badge)}</Badge>
@@ -110,10 +110,10 @@ export function OpportunityKanban({
                           </Badge>
                         ) : null}
                       </div>
-                      <h3 className="mt-3 text-sm font-semibold text-slate-950">
+                      <h3 className="mt-3 text-sm font-semibold text-[--text-primary]">
                         {opportunity.title}
                       </h3>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                      <p className="mt-2 text-sm leading-6 text-[--text-secondary]">
                         {[opportunity.process.name, opportunity.owner?.name].filter(Boolean).join(" · ")}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">

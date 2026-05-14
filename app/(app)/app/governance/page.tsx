@@ -27,13 +27,13 @@ export default async function GovernancePage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-primary/10 bg-white p-8 shadow-soft-sm">
+      <section className="rounded-3xl border border-[--green-border] bg-[--bg-card] p-8 shadow-soft-sm">
         <div className="space-y-4">
           <Badge>{messages.app.nav.governance.title}</Badge>
-          <h2 className="max-w-4xl text-4xl font-semibold tracking-tight text-slate-950 text-balance">
+          <h2 className="max-w-4xl text-4xl font-semibold tracking-tight text-[--text-primary] text-balance">
             {messages.app.governanceModule.title}
           </h2>
-          <p className="max-w-3xl text-base leading-8 text-slate-600">
+          <p className="max-w-3xl text-base leading-8 text-[--text-secondary]">
             {messages.app.governanceModule.description}
           </p>
         </div>

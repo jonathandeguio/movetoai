@@ -2,6 +2,112 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Move to AI Design Tokens — app dark theme ─────────────────────────── */
+
+:root {
+  /* Fonds */
+  --bg-primary:     #060810;
+  --bg-secondary:   #0a0e1a;
+  --bg-card:        rgba(255,255,255,0.03);
+  --bg-hover:       rgba(255,255,255,0.05);
+  --bg-input:       rgba(255,255,255,0.04);
+
+  /* Accent vert menthe */
+  --green:          #6ee7b7;
+  --green-dim:      rgba(110,231,183,0.10);
+  --green-border:   rgba(110,231,183,0.25);
+  --green-border-h: rgba(110,231,183,0.45);
+  --on-green:       #060810;
+
+  /* Accents secondaires */
+  --blue:           #38bdf8;
+  --blue-dim:       rgba(56,189,248,0.10);
+  --blue-border:    rgba(56,189,248,0.25);
+  --purple:         #a78bfa;
+  --purple-dim:     rgba(167,139,250,0.10);
+  --purple-border:  rgba(167,139,250,0.25);
+  --amber:          #fbbf24;
+  --amber-dim:      rgba(251,191,36,0.10);
+  --amber-border:   rgba(251,191,36,0.25);
+  --coral:          #fb923c;
+  --coral-dim:      rgba(251,146,60,0.10);
+  --coral-border:   rgba(251,146,60,0.25);
+  --red:            #f87171;
+  --red-dim:        rgba(248,113,113,0.10);
+  --red-border:     rgba(248,113,113,0.25);
+
+  /* Texte */
+  --text-primary:   #c8cad8;
+  --text-secondary: rgba(200,202,216,0.65);
+  --text-muted:     rgba(200,202,216,0.38);
+  --text-disabled:  rgba(200,202,216,0.22);
+
+  /* Bordures */
+  --border-subtle:  rgba(255,255,255,0.06);
+  --border:         rgba(255,255,255,0.08);
+  --border-strong:  rgba(255,255,255,0.16);
+  --border-green:   rgba(110,231,183,0.30);
+  --border-focus:   #6ee7b7;
+
+  /* Typography */
+  --font-display:   'Syne', sans-serif;
+  --font-body:      'Inter', sans-serif;
+  --font-mono:      'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Radii */
+  --r-sm:  6px;   --r-md:  8px;   --r-lg:  12px;
+  --r-xl:  16px;  --r-pill:999px;
+
+  /* Transitions */
+  --t-fast: 150ms ease;  --t-norm: 200ms ease;  --t-slow: 300ms ease;
+
+  /* Shadows */
+  --shadow-green: 0 0 0 3px rgba(110,231,183,0.12);
+  --shadow-blue:  0 0 0 3px rgba(56,189,248,0.12);
+}
+
+/* ─── Base app styles ─────────────────────────────────────────────────────── */
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(110,231,183,0.20);
+  color: #c8cad8;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+/* Global focus style */
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+/* Skeleton utility */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 200% auto;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: var(--r-md);
+}
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to   { background-position:  200% center; }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -33,6 +139,46 @@
     --border: 214 32% 91%;
     --input: 214 32% 91%;
     --ring: 217 91% 55%;
+  }
+
+  /* ── Dark mode overrides ── */
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
+    --card: 222 47% 9%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 47% 9%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 6%;
+    --primary-hover: 217 91% 68%;
+    --primary-deep: 213 94% 72%;
+    --primary-sky: 213 94% 76%;
+    --primary-tint: 217 50% 15%;
+    --secondary: 222 47% 12%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 222 47% 12%;
+    --muted-foreground: 215 16% 60%;
+    --accent: 217 50% 15%;
+    --accent-foreground: 213 94% 72%;
+    --destructive: 0 73% 55%;
+    --destructive-foreground: 210 40% 98%;
+    --success: 128 60% 45%;
+    --success-foreground: 138 76% 97%;
+    --warning: 32 89% 55%;
+    --warning-foreground: 222 47% 6%;
+    --danger: 0 73% 55%;
+    --danger-foreground: 210 40% 98%;
+    --border: 215 28% 18%;
+    --input: 215 28% 18%;
+    --ring: 217 91% 60%;
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 30%),
+      radial-gradient(circle at top right, rgba(37, 99, 235, 0.05), transparent 28%),
+      linear-gradient(180deg, hsl(222, 47%, 6%) 0%, hsl(222, 47%, 8%) 100%);
   }
 
   * {
@@ -74,3 +220,126 @@
     text-wrap: balance;
   }
 }
+
+/* ─── No pure white text — remap text-white to the light-grey token ─────── */
+/* Tailwind's text-white (#fff) is overridden everywhere so all copy stays  */
+/* on the --text-primary grey (#c8cad8). On coloured buttons the difference */
+/* is imperceptible; on dark backgrounds it removes harsh contrast.          */
+
+.text-white {
+  color: var(--text-primary) !important;
+}
+
+/* ─── Brand mark animations ──────────────────────────────────────────────── */
+
+/**
+ * Entrance animation: brief glow-pulse when the logo first appears.
+ * Apply with class="brand-entrance" — plays once, no loop.
+ */
+@keyframes brand-entrance {
+  0%   { opacity: 0.6; transform: scale(0.96); filter: drop-shadow(0 0 0px rgba(66, 232, 242, 0)); }
+  55%  { opacity: 1;   transform: scale(1.01); filter: drop-shadow(0 0 18px rgba(66, 232, 242, 0.55)) drop-shadow(0 0 6px rgba(37, 99, 235, 0.35)); }
+  100% { opacity: 1;   transform: scale(1);    filter: drop-shadow(0 0 0px rgba(66, 232, 242, 0)); }
+}
+
+.brand-entrance {
+  animation: brand-entrance 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/**
+ * Idle ambient pulse — very subtle, infinite.
+ * Use on hero / splash screens to suggest "live" platform.
+ */
+@keyframes brand-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0px  rgba(66, 232, 242, 0));    }
+  50%       { filter: drop-shadow(0 0 14px rgba(66, 232, 242, 0.38)) drop-shadow(0 0 4px rgba(44, 123, 223, 0.25)); }
+}
+
+.brand-pulse {
+  animation: brand-pulse 3.5s ease-in-out infinite;
+}
+
+/**
+ * Hover glow utility — applied directly to SVG elements.
+ * Parent needs class="group/brand".
+ */
+.brand-glow-on-hover {
+  transition: filter 300ms ease, transform 300ms ease;
+  will-change: filter, transform;
+}
+
+.group\/brand:hover .brand-glow-on-hover {
+  filter: drop-shadow(0 0 10px rgba(66, 232, 242, 0.5)) drop-shadow(0 0 3px rgba(37, 99, 235, 0.3));
+  transform: scale(1.02);
+}
+
+/* ─── Marketing site — dark theme variables ──────────────────────────────── */
+
+.mkt {
+  color-scheme: dark;
+  --m-bg:           #060810;
+  --m-bg-secondary: #0a0e1a;
+  --m-bg-card:      rgba(255, 255, 255, 0.03);
+  --m-green:        #6ee7b7;
+  --m-green-dim:    rgba(110, 231, 183, 0.12);
+  --m-green-border: rgba(110, 231, 183, 0.25);
+  --m-blue:         #38bdf8;
+  --m-purple:       #a78bfa;
+  --m-amber:        #fbbf24;
+  --m-coral:        #fb923c;
+  --m-text:         #c8cad8;
+  --m-text-2:       rgba(200, 202, 216, 0.65);
+  --m-text-3:       rgba(200, 202, 216, 0.38);
+  --m-border:       rgba(255, 255, 255, 0.08);
+  --m-border-hover: rgba(255, 255, 255, 0.16);
+  --m-border-green: rgba(110, 231, 183, 0.30);
+}
+
+/* ─── Marketing animations ────────────────────────────────────────────────── */
+
+@keyframes mkt-ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes mkt-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.2); }
+}
+
+@keyframes mkt-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mkt-slide-in {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes mkt-shimmer {
+  from { background-position: -200% center; }
+  to   { background-position:  200% center; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Scroll reveal ───────────────────────────────────────────────────────── */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-stagger:nth-child(1) { transition-delay:   0ms; }
+.reveal-stagger:nth-child(2) { transition-delay: 120ms; }
+.reveal-stagger:nth-child(3) { transition-delay: 240ms; }
+.reveal-stagger:nth-child(4) { transition-delay: 360ms; }
+.reveal-stagger:nth-child(5) { transition-delay: 480ms; }

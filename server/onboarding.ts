@@ -82,8 +82,17 @@ function buildFreePlanSettings(locale: Locale) {
 export async function createWorkspaceForUser(input: {
   userId: string;
   preferredLocale: Locale;
+  firstName?: string;
+  lastName?: string;
+  jobTitle?: string;
+  phone?: string;
   companyName: string;
   workspaceName: string;
+  companySize?: string;
+  sector?: string;
+  decisionRole?: string;
+  website?: string;
+  accountType?: string;
 }) {
   return prisma.$transaction(async (tx) => {
     const existingMembership = await tx.membership.findFirst({
@@ -126,6 +135,10 @@ export async function createWorkspaceForUser(input: {
         settings: {
           currentPlan: "FREE",
           acquisitionSource: "self-serve-signup",
+          ...(input.companySize ? { companySize: input.companySize } : {}),
+          ...(input.sector ? { sector: input.sector } : {}),
+          ...(input.website ? { website: input.website } : {}),
+          ...(input.accountType ? { accountType: input.accountType } : {}),
           planShowcase: {
             free: "Start free with one workspace, five users, process mapping, and opportunity intake.",
             pro: "Unlock custom scoring, governance workflows, advanced exports, and portfolio collaboration.",
@@ -180,14 +193,27 @@ export async function createWorkspaceForUser(input: {
       plan: freePlan
     });
 
+    // Build display name from firstName + lastName if provided
+    const fullName =
+      input.firstName && input.lastName
+        ? `${input.firstName.trim()} ${input.lastName.trim()}`
+        : input.firstName || input.lastName || undefined;
+
     await tx.user.update({
       where: {
         id: input.userId
       },
       data: {
         preferredLocale: toLocaleCode(input.preferredLocale),
+        ...(fullName ? { name: fullName } : {}),
+        ...(input.jobTitle ? { jobTitle: input.jobTitle } : {}),
         preferences: mergeUserPreferences(user.preferences, {
-          currentWorkspaceId: workspace.id
+          currentWorkspaceId: workspace.id,
+          ...(input.firstName ? { firstName: input.firstName } : {}),
+          ...(input.lastName ? { lastName: input.lastName } : {}),
+          ...(input.phone ? { phone: input.phone } : {}),
+          ...(input.decisionRole ? { decisionRole: input.decisionRole } : {}),
+          ...(input.accountType ? { accountType: input.accountType } : {}),
         })
       }
     });

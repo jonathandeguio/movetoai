@@ -4,7 +4,7 @@ import type { Messages } from "@/lib/i18n/en";
 
 export const esMessages = {
   meta: {
-    title: "BluePilot AI",
+    title: "Move to AI",
     description:
       "Convierte la visibilidad de procesos en una cartera priorizada de oportunidades de IA."
   },
@@ -78,7 +78,7 @@ export const esMessages = {
       eyebrow: "Capa de decisión para oportunidades de IA",
       title: "Convierte ideas de IA dispersas en una cartera priorizada",
       subtitle:
-        "BluePilot AI ayuda a los equipos a identificar las mejores oportunidades de IA por proceso de negocio, puntuarlas rápido y pasar de ideas sueltas a una ejecución gobernada.",
+        "Move to AI ayuda a los equipos a identificar las mejores oportunidades de IA por proceso de negocio, puntuarlas rápido y pasar de ideas sueltas a una ejecución gobernada.",
       bullets: [
         "Empieza gratis con mapeo de oportunidades orientado al proceso",
         "Pasa a Pro cuando necesites gobernanza, colaboración y escala",
@@ -101,7 +101,7 @@ export const esMessages = {
         {
           title: "Ligero, no pesado como un repositorio EA",
           description:
-            "BluePilot AI ofrece la capa de decisión que necesitan los líderes sin desplegar un repositorio de arquitectura empresarial."
+            "Move to AI ofrece la capa de decisión que necesitan los líderes sin desplegar un repositorio de arquitectura empresarial."
         }
       ]
     },
@@ -130,7 +130,7 @@ export const esMessages = {
       title: "Vista previa de FAQ",
       items: [
         {
-          question: "¿BluePilot AI es una plataforma de process mining?",
+          question: "¿Move to AI es una plataforma de process mining?",
           answer:
             "No. Es una capa de decisión que transforma la visibilidad del proceso en una cartera accionable de oportunidades de IA."
         },
@@ -218,11 +218,11 @@ export const esMessages = {
   },
   auth: {
     login: {
-      title: "Accede a BluePilot AI",
+      title: "Accede a Move to AI",
       subtitle:
         "Entra en tu workspace multilingüe y en tu cartera de oportunidades de IA.",
       submit: "Iniciar sesión",
-      footer: "¿Nuevo en BluePilot AI?",
+      footer: "¿Nuevo en Move to AI?",
       invalidCredentials: "Correo o contraseña inválidos."
     },
     signup: {
@@ -253,7 +253,32 @@ export const esMessages = {
       processes: { title: "Procesos", description: "Lente de negocio" },
       governance: { title: "Gobernanza", description: "Revisión y decisión" },
       analytics: { title: "Analítica", description: "Señales y pruebas" },
-      settings: { title: "Configuración", description: "Ajustes del workspace" }
+      settings: { title: "Configuración", description: "Ajustes del workspace" },
+      // Knowledge section
+      knowledgeApplications: { title: "Aplicaciones", description: "Mapa de aplicaciones" },
+      knowledgeCapabilities: { title: "Capacidades", description: "Árbol de capacidades" },
+      knowledgeProcesses: { title: "Procesos", description: "Procesos enriquecidos con IA" },
+      knowledgeTechnologies: { title: "Tecnologías", description: "Stack tecnológico" },
+      // Insights section
+      insightsMaturity: { title: "Heatmap madurez", description: "Madurez de capacidades" },
+      insightsDependencyGraph: { title: "Grafo dependencias", description: "Relaciones aplicaciones / capacidades" },
+      insightsDataQuality: { title: "Calidad de datos", description: "Informe de calidad del repositorio" },
+      insightsRelationships: { title: "Relaciones IA", description: "Sugerencias de relaciones faltantes" },
+      // Sprint 3
+      surveys: { title: "Encuestas", description: "Encuestas y atestaciones" },
+      governanceAttestations: { title: "Atestaciones", description: "Validación de entidades" },
+      governanceDecisions: { title: "Decisiones (ADR)", description: "Registro de decisiones de arquitectura" },
+      adminIngestion: { title: "Ingesta", description: "Importación de archivos" },
+      // Sprint 4
+      copilot: { title: "Copilot IA", description: "Asistente IA conversacional" },
+      insightsBriefing: { title: "Briefing semanal", description: "Resumen IA de la semana" },
+      scenarios: { title: "Escenarios", description: "Simulación de inversiones IA" },
+      roiDashboard: { title: "ROI Dashboard", description: "Retorno de inversión" },
+      insightsTechRadar: { title: "Tech Radar", description: "Radar tecnológico" },
+      roadmap: { title: "Roadmap IA", description: "Cronograma de iniciativas" },
+      governanceRisks: { title: "Risk Dashboard", description: "Seguimiento de riesgos" },
+      adminWebhooks: { title: "Webhooks", description: "Notificaciones push salientes" },
+      adminAudit: { title: "Registro de auditoría", description: "Historial de acciones" },
     },
     overview: {
       eyebrow: "Shell multilingüe",

@@ -1,6 +1,6 @@
 export const enMessages = {
   meta: {
-    title: "BluePilot AI",
+    title: "Move to AI",
     description:
       "Turn process visibility into a prioritized AI opportunity portfolio."
   },
@@ -90,7 +90,7 @@ export const enMessages = {
       eyebrow: "AI opportunity decision layer",
       title: "Turn scattered AI ideas into a prioritized portfolio",
       subtitle:
-        "BluePilot AI helps teams identify the best AI opportunities across business processes, score them fast, and move from raw ideas to governed action.",
+        "Move to AI helps teams identify the best AI opportunities across business processes, score them fast, and move from raw ideas to governed action.",
       bullets: [
         "Start free with process-first opportunity mapping",
         "Upgrade when you need governance, collaboration, and scale",
@@ -113,7 +113,7 @@ export const enMessages = {
         {
           title: "Stay light, not enterprise-architecture heavy",
           description:
-            "BluePilot AI gives leaders the decision layer they need without an EA repository rollout."
+            "Move to AI gives leaders the decision layer they need without an EA repository rollout."
         }
       ]
     },
@@ -142,7 +142,7 @@ export const enMessages = {
       title: "FAQ preview",
       items: [
         {
-          question: "Is BluePilot AI a process mining platform?",
+          question: "Is Move to AI a process mining platform?",
           answer:
             "No. It is a decision layer that turns process insight into an actionable AI opportunity portfolio."
         },
@@ -233,10 +233,10 @@ export const enMessages = {
   },
   auth: {
     login: {
-      title: "Log in to BluePilot AI",
+      title: "Log in to Move to AI",
       subtitle: "Access your multilingual workspace and AI opportunity portfolio.",
       submit: "Log in",
-      footer: "New to BluePilot AI?",
+      footer: "New to Move to AI?",
       invalidCredentials: "Invalid email or password."
     },
     signup: {
@@ -260,16 +260,23 @@ export const enMessages = {
     password: "Password",
     preferredLanguage: "Preferred language",
     role: "Role",
-    message: "Message"
+    message: "Message",
+    companySizeLabel: "Company size",
+    companySizePlaceholder: "Select your company size",
+    companySizeOptions: {
+      pme: "SME (fewer than 500 employees)",
+      eti: "Mid-market (500 to 5,000 employees)",
+      grand_groupe: "Large enterprise (5,000+ employees)"
+    }
   },
   onboarding: {
     badge: "Onboarding",
     title: "Go from first login to first AI opportunity in minutes",
     subtitle:
-      "BluePilot AI turns process visibility into a governed AI opportunity portfolio. Start with a free workspace, add your first processes, and upgrade only when governance and scale matter.",
+      "Move to AI turns process visibility into a governed AI opportunity portfolio. Start with a free workspace, add your first processes, and upgrade only when governance and scale matter.",
     formIntro:
       "Create your first workspace to enter the app and start mapping AI opportunities by process.",
-    whatYouGetTitle: "What BluePilot AI gives you first",
+    whatYouGetTitle: "What Move to AI gives you first",
     whatYouGetBody:
       "Map a few business processes, capture pain points, identify AI opportunities, and make prioritization visible before you invest in heavyweight transformation tooling.",
     stepsTitle: "How to get value fast",
@@ -325,7 +332,7 @@ export const enMessages = {
         "Pick the five business processes that matter most right now. These choices will personalize your first AI opportunity experience.",
       whyTitle: "Why these 5 matter",
       whyBody:
-        "BluePilot AI will use these process selections to anchor the first opportunity discovery workflow in real operational priorities.",
+        "Move to AI will use these process selections to anchor the first opportunity discovery workflow in real operational priorities.",
       bullets: [
         "Start from real business processes already mapped in your workspace.",
         "Give the product an immediate starting point for AI opportunity discovery.",
@@ -344,6 +351,45 @@ export const enMessages = {
       errors: {
         invalidSelection: "Choose exactly 5 valid processes before continuing.",
         unexpected: "We could not save your process selection right now."
+      },
+      aiFlow: {
+        domainsTitle: "What are your priority business domains?",
+        domainsSubtitle:
+          "Select up to 3 domains. Claude will recommend the 6 best processes to automate based on your profile.",
+        domainsConfirm: "Get AI recommendations",
+        domainsMin: "Select at least one domain to continue.",
+        loadingTitle: "Analysing your profile...",
+        loadingSubtitle:
+          "Claude is generating personalized process recommendations for you.",
+        recommendationsTitle: "Your recommended processes",
+        recommendationsSubtitle:
+          "Based on your role and company size, Claude recommends these 6 processes. All are pre-selected — adjust as needed.",
+        profileLabel: "Your profile",
+        gainLabel: "Estimated gain",
+        complexityLabel: "Complexity",
+        complexity: {
+          low: "Easy",
+          medium: "Moderate",
+          high: "Complex"
+        },
+        confirmButton: "Confirm and enter the app",
+        selectAll: "Select all",
+        domains: [
+          "Finance & Accounting",
+          "Human Resources",
+          "Sales & Business Development",
+          "Marketing & Communications",
+          "Customer Support & Service",
+          "Operations & Logistics",
+          "Legal & Compliance",
+          "Procurement & Supply Chain",
+          "IT & Digital"
+        ],
+        errors: {
+          apiError:
+            "Recommendation service temporarily unavailable. Default processes have been applied.",
+          saveError: "We could not save your selection right now."
+        }
       }
     }
   },
@@ -380,11 +426,53 @@ export const enMessages = {
       value: { title: "Value", description: "Expected and realized outcomes" },
       domains: { title: "Domains", description: "Business coverage view" },
       opportunities: { title: "Opportunities", description: "AI portfolio intake" },
+      useCases: { title: "Use cases", description: "AI use case specs and delivery" },
       processes: { title: "Processes", description: "Business process lens" },
-      dataProducts: { title: "Data products", description: "AI readiness data layer" },
+
       governance: { title: "Governance", description: "Review and decision flow" },
       analytics: { title: "Analytics", description: "Signals and proof points" },
-      settings: { title: "Settings", description: "Workspace configuration" }
+      settings: { title: "Settings", description: "Workspace configuration" },
+      adminTeam: { title: "Team", description: "Manage members and roles" },
+      adminQuickStart: { title: "Quick start", description: "Setup checklist and AI score" },
+      adminProcesses: { title: "Processes", description: "Process catalog and management" },
+      adminAnalytics: { title: "Analytics", description: "ROI and workspace metrics" },
+      adminSettings: { title: "Settings", description: "Workspace configuration" },
+      adminBilling: { title: "Billing", description: "Subscription and invoices" },
+      adminIntegrations: { title: "Integrations", description: "Third-party connections" },
+      techDashboard: { title: "Tech dashboard", description: "Integrations, security and governance" },
+      consultingDashboard: { title: "Consulting", description: "My clients and partner program" },
+      memberDashboard: { title: "My workspace", description: "Tasks, processes and AI assistant" },
+      executiveDashboard: { title: "Executive view", description: "Maturity score, ROI and quick wins" },
+      workspaceAdminDashboard: { title: "Admin dashboard", description: "Workspace overview and management" },
+      enterpriseArchitectDashboard: { title: "Architect dashboard", description: "Processes, applications and architecture" },
+      transformationManagerDashboard: { title: "Transformation dashboard", description: "Portfolio, initiatives and ROI" },
+      // Knowledge section
+      knowledgeApplications: { title: "Applications", description: "Application landscape mapping" },
+      knowledgeCapabilities: { title: "Capabilities", description: "Business capability tree" },
+      knowledgeProcesses: { title: "Processes", description: "AI-enriched processes" },
+      knowledgeTechnologies: { title: "Technologies", description: "Technology stack" },
+      // Insights section
+      insightsMaturity: { title: "Maturity Heatmap", description: "Capability maturity overview" },
+      insightsDependencyGraph: { title: "Dependency Graph", description: "Applications & capabilities graph" },
+      insightsDataQuality: { title: "Data Quality", description: "Repository quality report" },
+      insightsRelationships: { title: "AI Relationships", description: "Missing relationships suggestions" },
+      // Sprint 3
+      surveys: { title: "Surveys", description: "Surveys & attestations" },
+      governanceAttestations: { title: "Attestations", description: "Entity validations" },
+      governanceDecisions: { title: "Decisions (ADR)", description: "Architecture decision registry" },
+      adminIngestion: { title: "Ingestion", description: "File import pipeline" },
+      // Sprint 4
+      copilot: { title: "AI Copilot", description: "Conversational AI assistant" },
+      insightsBriefing: { title: "Weekly Briefing", description: "AI-generated weekly summary" },
+      scenarios: { title: "Scenarios", description: "AI investment simulations" },
+      roiDashboard: { title: "ROI Dashboard", description: "Return on investment" },
+      insightsTechRadar: { title: "Tech Radar", description: "Technology portfolio radar" },
+      roadmap: { title: "AI Roadmap", description: "Initiative timeline" },
+      governanceRisks: { title: "Risk Dashboard", description: "Risk tracking" },
+      adminWebhooks: { title: "Webhooks", description: "Outbound push notifications" },
+      adminAudit:  { title: "Audit Log",   description: "Action history" },
+      compliance:  { title: "Compliance",  description: "Certifications & regulatory tracking" },
+      help: { title: "Help Center", description: "Documentation and user guides" },
     },
     overview: {
       eyebrow: "Multilingual workspace shell",
@@ -549,99 +637,7 @@ export const enMessages = {
       emptyDescription:
         "Start with opportunity intake and scoring to make the portfolio easier to prioritize."
     },
-    dataProductsModule: {
-      eyebrow: "Data Products for AI Readiness",
-      title: "Data products",
-      description:
-        "Review the data products that support your processes and AI opportunities, with a simple view of maturity and readiness.",
-      table: {
-        title: "Data products list",
-        description:
-          "Use this view to understand which data products already support your process landscape and opportunity portfolio."
-      },
-      filters: {
-        searchLabel: "Search",
-        searchPlaceholder: "Search data products by name",
-        medallionStage: "Medallion stage",
-        readiness: "Readiness",
-        allMedallionStages: "All stages",
-        allReadinessStates: "All readiness states",
-        stageOptions: {
-          bronze: "Bronze",
-          silver: "Silver",
-          gold: "Gold"
-        },
-        readinessOptions: {
-          draft: "Draft",
-          inProgress: "In progress",
-          ready: "Ready"
-        }
-      },
-      headers: {
-        name: "Data product",
-        medallionStage: "Medallion stage",
-        readiness: "Readiness",
-        processCount: "Processes",
-        opportunityCount: "Opportunities",
-        reportingAssetCount: "Reporting assets"
-      },
-      openDataProduct: "Open data product",
-      detail: {
-        backToList: "Back to data products",
-        summaryTitle: "Summary",
-        summaryDescription:
-          "Review the essential context that makes this data product useful for process support and AI readiness.",
-        noDescription: "No data product description yet.",
-        noOwner: "No owner assigned",
-        freshness: "Freshness",
-        noFreshness: "No freshness defined",
-        classification: "Classification",
-        noClassification: "No classification defined",
-        sourceSystem: "Source system",
-        noSourceSystem: "No source system linked",
-        duckdbDatasetRef: "DuckDB dataset reference",
-        noDuckdbDatasetRef: "No DuckDB dataset reference",
-        reportingDatasetRef: "Reporting dataset reference",
-        noReportingDatasetRef: "No reporting dataset reference",
-        linkedProcessesTitle: "Linked processes",
-        linkedProcessesDescription:
-          "These business processes currently depend on this data product.",
-        noLinkedProcesses: "No linked processes yet.",
-        openProcess: "Open process",
-        linkedOpportunitiesTitle: "Linked AI opportunities",
-        linkedOpportunitiesDescription:
-          "These AI opportunities currently depend on this data product.",
-        noLinkedOpportunities: "No linked AI opportunities yet.",
-        openOpportunity: "Open opportunity",
-        linkedReportingAssetsTitle: "Linked reporting assets",
-        linkedReportingAssetsDescription:
-          "Use reporting assets to show where this data product is already reused in dashboards and operational reporting.",
-        noLinkedReportingAssets: "No linked reporting assets yet.",
-        noLinkedProcess: "No linked process",
-        externalUrl: "External URL",
-        noExternalUrl: "No external URL",
-        supersetDashboardUrl: "Superset dashboard URL",
-        noSupersetDashboardUrl: "No Superset dashboard URL",
-        openReportingAsset: "Open reporting asset",
-        openSupersetDashboard: "Open Superset dashboard",
-        qualitySignalsTitle: "Quality signals",
-        qualitySignalsDescription:
-          "Quality signals help teams judge whether the data product is trusted and usable.",
-        qualitySignals: "Quality signals",
-        noQualitySignals: "No quality signals recorded yet.",
-        value: "Value",
-        noValue: "No value",
-        measuredAt: "Measured",
-        notMeasured: "Not measured"
-      },
-      emptyTitle: "No data products yet",
-      emptyFilteredTitle: "No data products match these filters",
-      emptyDescription:
-        "Start by defining the data products that support your priority processes and AI opportunities."
-      ,
-      emptyFilteredDescription:
-        "Try a broader search or clear one of the active filters to review more data products."
-    },
+
     domainsModule: {
       title: "Domains",
       description:
@@ -727,9 +723,7 @@ export const enMessages = {
       opportunitiesTitle: "Linked AI opportunities",
       opportunitiesDescription:
         "Use linked opportunities as proof points or identify whitespace when none are present.",
-      dataProductsTitle: "Linked data products",
-      dataProductsDescription:
-        "These data products show what already supports this process and how ready the data foundation is.",
+
       nextBestActionsDescription:
         "These prompts keep the team moving from process clarity into opportunity creation.",
       subProcessesTitle: "Sub-processes",
@@ -745,14 +739,10 @@ export const enMessages = {
       noPainPoints: "No pain points captured yet.",
       noPainPointDescription: "No extra detail captured yet.",
       noOpportunities: "No AI opportunities linked yet.",
-      noDataProducts: "No data products linked yet.",
-      noDataProductsDescription:
-        "Link the data products that support this process so AI readiness becomes clearer.",
       noVendor: "Vendor not specified",
       noDataClassification: "No data classification yet.",
       scoreLabel: "Score",
       valueLabel: "Expected value",
-      openDataProduct: "Open data product",
       actions: {
         identifyOpportunityTitle: "Identify the first AI opportunity",
         identifyOpportunityBody:

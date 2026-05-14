@@ -18,11 +18,11 @@ export function BusinessStructureEmptyState({
   actionHref
 }: EmptyStateProps) {
   return (
-    <Card className="border-dashed border-primary/20 bg-primary/5">
+    <Card className="border-dashed border-[--border]">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4 pt-0 text-sm leading-7 text-slate-600">
+      <CardContent className="space-y-4 pt-0 text-sm leading-7 text-[--text-secondary]">
         <p>{description}</p>
         {actionLabel && actionHref ? (
           <Button variant="outline" asChild>

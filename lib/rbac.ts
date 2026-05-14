@@ -19,15 +19,9 @@ export type PermissionKey = (typeof permissionCatalog)[number]["key"];
 
 export const systemRoleCatalog = [
   {
-    code: "SUPER_ADMIN",
-    name: "Super admin",
-    description: "Full platform administration across the tenant.",
-    permissionKeys: permissionCatalog.map((permission) => permission.key)
-  },
-  {
     code: "WORKSPACE_ADMIN",
-    name: "Workspace admin",
-    description: "Operational owner of the workspace and team access.",
+    name: "Workspace Admin",
+    description: "Operational owner of the workspace — manages team, settings and billing.",
     permissionKeys: [
       "workspace.view",
       "workspace.manage",
@@ -39,26 +33,31 @@ export const systemRoleCatalog = [
       "governance.manage",
       "initiatives.manage",
       "analytics.view",
-      "settings.manage"
+      "audit.view",
+      "settings.manage",
+      "integrations.manage",
+      "billing.manage"
     ]
   },
   {
-    code: "ARCHITECT",
-    name: "Architect",
-    description: "Owns process, application, and data mapping.",
+    code: "ENTERPRISE_ARCHITECT",
+    name: "Enterprise Architect",
+    description: "Owns process, application and data mapping — technical authority for the transformation.",
     permissionKeys: [
       "workspace.view",
       "business-structure.manage",
       "opportunities.manage",
       "scoring.manage",
+      "governance.manage",
       "analytics.view",
+      "audit.view",
       "integrations.manage"
     ]
   },
   {
-    code: "AI_PORTFOLIO_MANAGER",
-    name: "AI portfolio manager",
-    description: "Runs intake, prioritization, and governance preparation.",
+    code: "TRANSFORMATION_MANAGER",
+    name: "Transformation Manager",
+    description: "Drives intake, prioritization, governance and value tracking for the AI portfolio.",
     permissionKeys: [
       "workspace.view",
       "business-structure.manage",
@@ -68,34 +67,6 @@ export const systemRoleCatalog = [
       "initiatives.manage",
       "analytics.view"
     ]
-  },
-  {
-    code: "BUSINESS_OWNER",
-    name: "Business owner",
-    description: "Sponsors value hypotheses and delivery outcomes.",
-    permissionKeys: [
-      "workspace.view",
-      "opportunities.manage",
-      "analytics.view",
-      "initiatives.manage"
-    ]
-  },
-  {
-    code: "REVIEWER",
-    name: "Reviewer",
-    description: "Participates in decisions, approvals, and risk reviews.",
-    permissionKeys: [
-      "workspace.view",
-      "governance.manage",
-      "analytics.view",
-      "audit.view"
-    ]
-  },
-  {
-    code: "VIEWER",
-    name: "Viewer",
-    description: "Read-only access to portfolio dashboards and summaries.",
-    permissionKeys: ["workspace.view", "analytics.view"]
   }
 ] as const satisfies ReadonlyArray<{
   code: string;
@@ -106,7 +77,7 @@ export const systemRoleCatalog = [
 
 export type RoleCode = (typeof systemRoleCatalog)[number]["code"];
 
-export const defaultJoinRoleCode: RoleCode = "VIEWER";
+export const defaultJoinRoleCode: RoleCode = "TRANSFORMATION_MANAGER";
 export const defaultWorkspaceOwnerRoleCode: RoleCode = "WORKSPACE_ADMIN";
 
 export function isPermissionKey(value: string): value is PermissionKey {

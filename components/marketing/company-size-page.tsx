@@ -18,7 +18,7 @@ const sections = [
     maturity: "Maturite heterogene, besoins concrets et rapides.",
     diagnostic: "Diagnostic guide dans la plateforme pour identifier 5 processus prioritaires.",
     moveToAi: "Cadrage rapide et trajectoire courte.",
-    bluePilotAi: "Cockpit simple pour piloter opportunites et actions.",
+    platform: "Cockpit simple pour piloter opportunites et actions.",
     benefits: ["Trajectoire lisible", "Adoption plus rapide"]
   },
   {
@@ -27,7 +27,7 @@ const sections = [
     maturity: "Premiers cas d'usage, passage a l'echelle partiel.",
     diagnostic: "Diagnostic guide pour prioriser et organiser la gouvernance.",
     moveToAi: "Priorisation et gouvernance adaptee.",
-    bluePilotAi: "Portefeuille, workflows et suivi de valeur.",
+    platform: "Portefeuille, workflows et suivi de valeur.",
     benefits: ["Priorites mieux arbitrees", "Execution plus coherente"]
   },
   {
@@ -36,7 +36,7 @@ const sections = [
     maturity: "Initiatives nombreuses, industrialisation inegale.",
     diagnostic: "Diagnostic guide pour selectionner les processus critiques.",
     moveToAi: "Structuration du programme et des arbitrages.",
-    bluePilotAi: "Cockpit transverse de gouvernance et execution.",
+    platform: "Cockpit transverse de gouvernance et execution.",
     benefits: ["Vision corporate plus claire", "Passage a l'echelle plus credible"]
   }
 ];
@@ -77,7 +77,7 @@ export function CompanySizePage({ content }: CompanySizePageProps) {
                   </div>
                   <p className="text-sm font-semibold text-slate-950">Plateforme</p>
                   <div className="rounded-2xl border border-slate-200 bg-slate-950 px-4 py-3 text-sm text-slate-200">
-                    {section.bluePilotAi}
+                    {section.platform}
                   </div>
                 </div>
                 <div className="space-y-3">

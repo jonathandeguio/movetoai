@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 
 import { BusinessStructureEmptyState } from "@/components/business-structure/empty-state";
 import { DetailSection } from "@/components/business-structure/detail-section";
+import { ProcessEditForm } from "@/components/business-structure/process-edit-form";
+import { PainPointCreateForm } from "@/components/business-structure/pain-point-create-form";
 import { OpportunityPreviewCard } from "@/components/business-structure/opportunity-preview-card";
 import { MetricCard } from "@/components/app/metric-card";
 import { Badge } from "@/components/ui/badge";
@@ -14,13 +16,6 @@ import { getRequestLocale } from "@/lib/i18n/server";
 import { suggestOpportunitiesFromProcess } from "@/modules/ai-assistant/server/suggest-opportunities";
 import { AssistantPanel } from "@/modules/ai-assistant/ui/assistant-panel";
 import { getProcessDetail } from "@/modules/business-structure/server/get-process-detail";
-import {
-  DataProductReadinessStatus,
-  type DataProductMedallionStage,
-  type DataProductReadinessStatus as DataProductReadinessStatusValue,
-} from "@/modules/data-products/domain/data-product.enums";
-import { DataProductMedallionBadge } from "@/modules/data-products/ui/data-product-medallion-badge";
-import { DataProductReadinessBadge } from "@/modules/data-products/ui/data-product-readiness-badge";
 
 function getSeverityVariant(severity: string) {
   if (severity === "CRITICAL" || severity === "HIGH") {
@@ -34,17 +29,6 @@ function getSeverityVariant(severity: string) {
   return "outline" as const;
 }
 
-function mapDataProductReadinessStatus(status: string): DataProductReadinessStatusValue {
-  switch (status) {
-    case "READY":
-      return DataProductReadinessStatus.READY;
-    case "PARTIALLY_READY":
-      return DataProductReadinessStatus.IN_PROGRESS;
-    default:
-      return DataProductReadinessStatus.DRAFT;
-  }
-}
-
 export default async function ProcessDetailPage({
   params
 }: {
@@ -52,7 +36,8 @@ export default async function ProcessDetailPage({
 }) {
   const locale = await getRequestLocale();
   const messages = getMessages(locale);
-  const { workspace } = await requirePermission("business-structure.manage");
+  const { workspace, roleCode } = await requirePermission("business-structure.manage");
+  const canManage = ["WORKSPACE_ADMIN","ENTERPRISE_ARCHITECT","TRANSFORMATION_MANAGER"].includes(roleCode ?? "");
   const { id } = await params;
   const process = await getProcessDetail(workspace!.id, id);
 
@@ -111,7 +96,7 @@ export default async function ProcessDetailPage({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-primary/10 bg-white p-8 shadow-soft-sm">
+      <section className="rounded-3xl border border-[--green-border] bg-[--bg-card] p-8 shadow-soft-sm">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -122,17 +107,24 @@ export default async function ProcessDetailPage({
               ) : null}
             </div>
             <div className="space-y-3">
-              <h2 className="max-w-4xl text-4xl font-semibold tracking-tight text-slate-950 text-balance">
+              <h2 className="max-w-4xl text-4xl font-semibold tracking-tight text-[--text-primary] text-balance">
                 {process.name}
               </h2>
-              <p className="max-w-3xl text-base leading-8 text-slate-600">
+              <p className="max-w-3xl text-base leading-8 text-[--text-secondary]">
                 {process.description ?? messages.app.processesModule.noDescription}
               </p>
             </div>
           </div>
-          <Button asChild>
-            <Link href="/app/opportunities">{messages.app.processesModule.actions.openOpportunities}</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <ProcessEditForm
+              processId={process.id}
+              initialName={process.name}
+              initialDescription={process.description ?? null}
+            />
+            <Button asChild>
+              <Link href="/app/opportunities">{messages.app.processesModule.actions.openOpportunities}</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -160,41 +152,41 @@ export default async function ProcessDetailPage({
         description={messages.app.processesModule.contextDescription}
       >
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-2xl border border-border/80 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <div className="rounded-2xl border border-[--border] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-muted]">
               {messages.common.labels.owner}
             </p>
-            <p className="mt-2 text-sm font-medium text-slate-950">
+            <p className="mt-2 text-sm font-medium text-[--text-primary]">
               {process.owner?.name ?? messages.app.processesModule.noOwner}
             </p>
           </div>
-          <div className="rounded-2xl border border-border/80 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <div className="rounded-2xl border border-[--border] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-muted]">
               {messages.common.labels.businessUnit}
             </p>
-            <p className="mt-2 text-sm font-medium text-slate-950">
+            <p className="mt-2 text-sm font-medium text-[--text-primary]">
               {process.businessUnit?.name ?? messages.common.labels.noBusinessUnit}
             </p>
           </div>
-          <div className="rounded-2xl border border-border/80 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <div className="rounded-2xl border border-[--border] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-muted]">
               {messages.common.labels.domain}
             </p>
-            <p className="mt-2 text-sm font-medium text-slate-950">{process.domain.name}</p>
+            <p className="mt-2 text-sm font-medium text-[--text-primary]">{process.domain.name}</p>
           </div>
-          <div className="rounded-2xl border border-border/80 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <div className="rounded-2xl border border-[--border] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-muted]">
               {messages.common.labels.capability}
             </p>
-            <p className="mt-2 text-sm font-medium text-slate-950">
+            <p className="mt-2 text-sm font-medium text-[--text-primary]">
               {process.capability?.name ?? messages.app.processesModule.noCapability}
             </p>
           </div>
         </div>
         {process.subProcesses.length > 0 || process.kpis.length > 0 ? (
           <div className="grid gap-4 lg:grid-cols-2">
-            <div className="rounded-2xl border border-border/80 p-4">
-              <p className="text-sm font-semibold text-slate-950">
+            <div className="rounded-2xl border border-[--border] p-4">
+              <p className="text-sm font-semibold text-[--text-primary]">
                 {messages.app.processesModule.subProcessesTitle}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -205,8 +197,8 @@ export default async function ProcessDetailPage({
                 ))}
               </div>
             </div>
-            <div className="rounded-2xl border border-border/80 p-4">
-              <p className="text-sm font-semibold text-slate-950">
+            <div className="rounded-2xl border border-[--border] p-4">
+              <p className="text-sm font-semibold text-[--text-primary]">
                 {messages.app.processesModule.kpisTitle}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -227,20 +219,20 @@ export default async function ProcessDetailPage({
         description={messages.app.processesModule.supportingSystemsDescription}
       >
         <div className="grid gap-4 lg:grid-cols-2">
-          <div className="rounded-2xl border border-border/80 p-4">
-            <p className="text-sm font-semibold text-slate-950">
+          <div className="rounded-2xl border border-[--border] p-4">
+            <p className="text-sm font-semibold text-[--text-primary]">
               {messages.common.labels.supportingApplications}
             </p>
             {process.applications.length === 0 ? (
-              <p className="mt-3 text-sm leading-6 text-slate-600">
+              <p className="mt-3 text-sm leading-6 text-[--text-secondary]">
                 {messages.app.processesModule.noApplications}
               </p>
             ) : (
               <div className="mt-3 space-y-3">
                 {process.applications.map((item) => (
-                  <div key={item.application.id} className="rounded-xl bg-slate-50 px-3 py-3">
-                    <p className="text-sm font-medium text-slate-950">{item.application.name}</p>
-                    <p className="text-sm text-slate-600">
+                  <div key={item.application.id} className="rounded-xl bg-[--bg-hover] px-3 py-3">
+                    <p className="text-sm font-medium text-[--text-primary]">{item.application.name}</p>
+                    <p className="text-sm text-[--text-secondary]">
                       {item.application.vendor ?? messages.app.processesModule.noVendor}
                     </p>
                   </div>
@@ -248,20 +240,20 @@ export default async function ProcessDetailPage({
               </div>
             )}
           </div>
-          <div className="rounded-2xl border border-border/80 p-4">
-            <p className="text-sm font-semibold text-slate-950">
+          <div className="rounded-2xl border border-[--border] p-4">
+            <p className="text-sm font-semibold text-[--text-primary]">
               {messages.common.labels.dataSources}
             </p>
             {process.dataSources.length === 0 ? (
-              <p className="mt-3 text-sm leading-6 text-slate-600">
+              <p className="mt-3 text-sm leading-6 text-[--text-secondary]">
                 {messages.app.processesModule.noDataSources}
               </p>
             ) : (
               <div className="mt-3 space-y-3">
                 {process.dataSources.map((item) => (
-                  <div key={item.dataSource.id} className="rounded-xl bg-slate-50 px-3 py-3">
-                    <p className="text-sm font-medium text-slate-950">{item.dataSource.name}</p>
-                    <p className="text-sm text-slate-600">
+                  <div key={item.dataSource.id} className="rounded-xl bg-[--bg-hover] px-3 py-3">
+                    <p className="text-sm font-medium text-[--text-primary]">{item.dataSource.name}</p>
+                    <p className="text-sm text-[--text-secondary]">
                       {item.dataSource.classification ??
                         item.dataSource.systemName ??
                         messages.app.processesModule.noDataClassification}
@@ -286,16 +278,21 @@ export default async function ProcessDetailPage({
         ) : (
           <div className="space-y-3">
             {process.painPoints.map((item) => (
-              <div key={item.id} className="rounded-2xl border border-border/80 p-4">
+              <div key={item.id} className="rounded-2xl border border-[--border] p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant={getSeverityVariant(item.severity)}>{item.severity}</Badge>
                 </div>
-                <h3 className="mt-3 text-base font-semibold text-slate-950">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
+                <h3 className="mt-3 text-base font-semibold text-[--text-primary]">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[--text-secondary]">
                   {item.description ?? messages.app.processesModule.noPainPointDescription}
                 </p>
               </div>
             ))}
+          </div>
+        )}
+        {canManage && (
+          <div className="mt-4">
+            <PainPointCreateForm processId={process.id} />
           </div>
         )}
       </DetailSection>
@@ -332,46 +329,6 @@ export default async function ProcessDetailPage({
         )}
       </DetailSection>
 
-      <DetailSection
-        title={messages.app.processesModule.dataProductsTitle}
-        description={messages.app.processesModule.dataProductsDescription}
-      >
-        {process.dataProducts.length === 0 ? (
-          <BusinessStructureEmptyState
-            title={messages.app.processesModule.noDataProducts}
-            description={messages.app.processesModule.noDataProductsDescription}
-          />
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {process.dataProducts.map((item) => (
-              <div
-                key={item.dataProduct.id}
-                className="rounded-2xl border border-border/80 bg-white p-4 shadow-soft-sm"
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <DataProductMedallionBadge
-                    medallionStage={item.dataProduct.medallionStage as DataProductMedallionStage}
-                  />
-                  <DataProductReadinessBadge
-                    readinessStatus={mapDataProductReadinessStatus(
-                      item.dataProduct.readinessStatus
-                    )}
-                  />
-                </div>
-                <h3 className="mt-3 text-base font-semibold text-slate-950">
-                  {item.dataProduct.name}
-                </h3>
-                <Button className="mt-4" variant="outline" asChild>
-                  <Link href={`/app/data-products/${item.dataProduct.id}` as Route}>
-                    {messages.app.processesModule.openDataProduct}
-                  </Link>
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-      </DetailSection>
-
       <AssistantPanel
         title={messages.app.aiAssistant.title}
         description={messages.app.aiAssistant.description}
@@ -391,9 +348,9 @@ export default async function ProcessDetailPage({
       >
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {nextActions.map((action) => (
-            <div key={action.title} className="rounded-2xl border border-primary/10 bg-primary/5 p-4">
-              <h3 className="text-base font-semibold text-slate-950">{action.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{action.body}</p>
+            <div key={action.title} className="rounded-2xl border border-[--green-border] bg-[--green-dim] p-4">
+              <h3 className="text-base font-semibold text-[--text-primary]">{action.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-[--text-secondary]">{action.body}</p>
               <Button className="mt-4" variant="outline" asChild>
                 <Link href={action.href as Route}>{action.label}</Link>
               </Button>

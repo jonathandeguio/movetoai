@@ -19,11 +19,11 @@ export function BusinessStructureErrorState({ error, reset }: ErrorStateProps) {
   }, [error]);
 
   return (
-    <Card className="border-rose-200 bg-rose-50/60">
+    <Card className="border-[--red-dim] bg-[--red-dim]">
       <CardHeader>
         <CardTitle>{messages.app.resourceStates.errorTitle}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4 pt-0 text-sm leading-7 text-slate-700">
+      <CardContent className="space-y-4 pt-0 text-sm leading-7 text-[--text-secondary]">
         <p>{messages.app.resourceStates.errorDescription}</p>
         <Button onClick={() => reset()}>{messages.app.resourceStates.retry}</Button>
       </CardContent>

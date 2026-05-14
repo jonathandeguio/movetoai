@@ -5,12 +5,12 @@ export function BusinessStructureLoadingState() {
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={index}
-            className="h-28 animate-pulse rounded-2xl border border-border/80 bg-white"
+            className="h-28 animate-pulse rounded-2xl border border-[--border] bg-[--bg-card]"
           />
         ))}
       </div>
-      <div className="h-40 animate-pulse rounded-2xl border border-border/80 bg-white" />
-      <div className="h-[28rem] animate-pulse rounded-2xl border border-border/80 bg-white" />
+      <div className="h-40 animate-pulse rounded-2xl border border-[--border] bg-[--bg-card]" />
+      <div className="h-[28rem] animate-pulse rounded-2xl border border-[--border] bg-[--bg-card]" />
     </div>
   );
 }

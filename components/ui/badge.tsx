@@ -4,21 +4,29 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold tracking-wide transition-colors",
+  "inline-flex items-center rounded-pill border px-2.5 py-0.5 text-[11px] font-medium tracking-wide transition-colors",
   {
     variants: {
       variant: {
-        default: "border-primary/10 bg-primary/10 text-primary-deep",
-        secondary: "border-slate-200 bg-slate-100 text-slate-700",
-        success: "border-emerald-200 bg-emerald-50 text-emerald-700",
-        warning: "border-amber-200 bg-amber-50 text-amber-700",
-        danger: "border-rose-200 bg-rose-50 text-rose-700",
-        outline: "border-border bg-white text-slate-700"
-      }
+        default:  "bg-[--green-dim]   text-[--green]  border-[--green-border]",
+        green:    "bg-[--green-dim]   text-[--green]  border-[--green-border]",
+        blue:     "bg-[--blue-dim]    text-[--blue]   border-[--blue-border]",
+        purple:   "bg-[--purple-dim]  text-[--purple] border-[--purple-border]",
+        amber:    "bg-[--amber-dim]   text-[--amber]  border-[--amber-dim]",
+        coral:    "bg-[--coral-dim]   text-[--coral]  border-[--coral-dim]",
+        red:      "bg-[--red-dim]     text-[--red]    border-[--red-dim]",
+        gray:     "bg-[--bg-hover]    text-[--text-secondary] border-[--border]",
+        // Legacy aliases
+        secondary:"bg-[--bg-hover]    text-[--text-secondary] border-[--border]",
+        success:  "bg-[--green-dim]   text-[--green]  border-[--green-border]",
+        warning:  "bg-[--amber-dim]   text-[--amber]  border-[--amber-dim]",
+        danger:   "bg-[--red-dim]     text-[--red]    border-[--red-dim]",
+        outline:  "bg-transparent     text-[--text-secondary] border-[--border]",
+      },
     },
     defaultVariants: {
-      variant: "default"
-    }
+      variant: "default",
+    },
   }
 );
 

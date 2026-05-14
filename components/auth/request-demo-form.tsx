@@ -53,14 +53,14 @@ export function RequestDemoForm() {
           <Label htmlFor="name">{messages.forms.name}</Label>
           <Input id="name" {...form.register("name")} />
           {form.formState.errors.name ? (
-            <p className="text-sm text-rose-600">{form.formState.errors.name.message}</p>
+            <p className="text-sm text-[--red]">{form.formState.errors.name.message}</p>
           ) : null}
         </div>
         <div className="space-y-2">
           <Label htmlFor="company">{messages.forms.company}</Label>
           <Input id="company" {...form.register("company")} />
           {form.formState.errors.company ? (
-            <p className="text-sm text-rose-600">
+            <p className="text-sm text-[--red]">
               {form.formState.errors.company.message}
             </p>
           ) : null}
@@ -71,7 +71,7 @@ export function RequestDemoForm() {
           <Label htmlFor="email">{messages.forms.email}</Label>
           <Input id="email" type="email" {...form.register("email")} />
           {form.formState.errors.email ? (
-            <p className="text-sm text-rose-600">
+            <p className="text-sm text-[--red]">
               {form.formState.errors.email.message}
             </p>
           ) : null}
@@ -80,7 +80,7 @@ export function RequestDemoForm() {
           <Label htmlFor="role">{messages.forms.role}</Label>
           <Input id="role" {...form.register("role")} />
           {form.formState.errors.role ? (
-            <p className="text-sm text-rose-600">{form.formState.errors.role.message}</p>
+            <p className="text-sm text-[--red]">{form.formState.errors.role.message}</p>
           ) : null}
         </div>
       </div>
@@ -88,14 +88,14 @@ export function RequestDemoForm() {
         <Label htmlFor="message">{messages.forms.message}</Label>
         <Textarea id="message" {...form.register("message")} />
         {form.formState.errors.message ? (
-          <p className="text-sm text-rose-600">{form.formState.errors.message.message}</p>
+          <p className="text-sm text-[--red]">{form.formState.errors.message.message}</p>
         ) : null}
       </div>
       <Button size="lg" type="submit" disabled={isPending}>
         {messages.common.ctas.requestDemo}
       </Button>
       {successMessage ? (
-        <p className="rounded-xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-primary-deep">
+        <p className="rounded-xl border border-[--green-border] bg-[--green-dim] px-4 py-3 text-sm text-[--green]">
           {successMessage}
         </p>
       ) : null}

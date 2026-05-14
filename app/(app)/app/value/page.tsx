@@ -44,18 +44,18 @@ export default async function ValuePage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-primary/10 bg-white p-8 shadow-soft-sm">
+      <section className="rounded-3xl border border-[--green-border] bg-[--bg-card] p-8 shadow-soft-sm">
         <div className="space-y-4">
           <Badge>{messages.app.nav.value.title}</Badge>
           <div className="flex items-center gap-3">
-            <span className="rounded-2xl bg-primary/10 p-3 text-primary-deep">
+            <span className="rounded-2xl bg-[--green-dim] p-3 text-[--green]">
               <TrendingUp className="h-5 w-5" />
             </span>
             <div className="space-y-1">
-              <h2 className="text-4xl font-semibold tracking-tight text-slate-950 text-balance">
+              <h2 className="text-4xl font-semibold tracking-tight text-[--text-primary] text-balance">
                 {messages.app.valueModule.title}
               </h2>
-              <p className="max-w-3xl text-base leading-8 text-slate-600">
+              <p className="max-w-3xl text-base leading-8 text-[--text-secondary]">
                 {messages.app.valueModule.description}
               </p>
             </div>

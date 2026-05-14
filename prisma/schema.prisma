@@ -56,6 +56,10 @@ enum OpportunityStatus {
   LIVE
   BLOCKED
   ARCHIVED
+  // New statuses for the simplified intake workflow
+  VALIDATED
+  CONVERTED
+  REJECTED
 }
 
 enum OpportunityBadge {
@@ -157,33 +161,6 @@ enum DataReadinessLevel {
   MEDIUM
   HIGH
   PRODUCTION_READY
-}
-
-enum MedallionStage {
-  BRONZE
-  SILVER
-  GOLD
-}
-
-enum DataProductReadinessStatus {
-  NOT_READY
-  PARTIALLY_READY
-  READY
-}
-
-enum DataQualitySignalType {
-  FRESHNESS
-  COMPLETENESS
-  ACCURACY
-  CONSISTENCY
-  TRUST
-}
-
-enum DataQualitySignalStatus {
-  UNKNOWN
-  HEALTHY
-  WARNING
-  CRITICAL
 }
 
 enum AssessmentType {
@@ -346,8 +323,23 @@ model Workspace {
   updatedAt     DateTime        @updatedAt
   deletedAt     DateTime?
 
+  stripeCustomerId     String?  @unique
+  stripeSubscriptionId String?
+  planType             String   @default("FREE") // FREE|PRO|ENTERPRISE
+  planExpiresAt        DateTime?
+  seatsUsed            Int      @default(0)
+  seatsLimit           Int      @default(2)
+
+  // Onboarding / sector intelligence
+  sectorCode           String?  // e.g. "finance", "retail", "healthcare"
+  companySize          String?  // "tpe" | "pme" | "eti" | "ge"
+  aiMaturity           String?  // "debutant" | "experimentateur" | "avance" | "leader"
+  priorities           Json?    // string[] — selected strategic priorities
+  horizon              String?  // "6_months" | "1_year" | "3_years"
+
   tenant           Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   memberships      Membership[]
+  certifications   WorkspaceCertification[]
   roles            Role[]
   businessUnits    BusinessUnit[]
   domains          Domain[]
@@ -357,14 +349,12 @@ model Workspace {
   painPoints       PainPoint[]
   applications     Application[]
   dataSources      DataSource[]
-  dataProducts     DataProduct[]
-  reportingAssets  ReportingAsset[]
-  dataQualitySignals DataQualitySignal[]
   kpis             KPI[]
   tags             Tag[]
   opportunityTypes OpportunityType[]
   scoreTemplates   ScoreTemplate[]
   opportunities    Opportunity[]
+  useCases         UseCase[]
   decisionBoards   DecisionBoard[]
   reviewMeetings   ReviewMeeting[]
   decisions        Decision[]
@@ -376,6 +366,21 @@ model Workspace {
   usageQuotas      UsageQuota[]
   usageEvents      UsageEvent[]
   auditLogs        AuditLog[]
+  technologies     Technology[]
+  aiAssessments    AIReadinessAssessment[]
+  archDecisions    ArchitectureDecision[]
+  // Sprint 4
+  copilotConversations CopilotConversation[]
+  scenarios            Scenario[]
+  notifications        Notification[]
+  webhooks             Webhook[]
+  // Sprint 3
+  ingestionJobs          IngestionJob[]
+  relationshipSuggestions RelationshipSuggestion[]
+  dataQualityReports     DataQualityReport[]
+  surveys                Survey[]
+  attestations           Attestation[]
+  ariaSessions           AriaSession[]
 
   @@unique([tenantId, slug])
   @@index([tenantId, status])
@@ -422,6 +427,8 @@ model User {
   jobTitle        String?
   preferences     Json?
   lastLoginAt     DateTime?
+  userFunction    String?    // transformation_manager | enterprise_architect
+  isPlatformAdmin Boolean    @default(false)
   hasCompletedProcessFocusOnboarding Boolean @default(false)
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
@@ -431,7 +438,6 @@ model User {
   sessions               Session[]
   memberships            Membership[]
   ownedProcesses         Process[]               @relation("ProcessOwner")
-  ownedDataProducts      DataProduct[]           @relation("DataProductOwner")
   ownedOpportunities     Opportunity[]           @relation("OpportunityOwner")
   sponsoredOpportunities Opportunity[]           @relation("OpportunitySponsor")
   createdOpportunities   Opportunity[]           @relation("OpportunityCreator")
@@ -448,6 +454,20 @@ model User {
     auditLogs              AuditLog[]              @relation("AuditActor")
     usageEvents            UsageEvent[]
     processFocusSelections UserProcessFocusSelection[]
+    diagramVersions        ProcessDiagramVersion[]
+    ownedCapabilities      Capability[]            @relation("CapabilityOwner")
+    businessOwnerApps      Application[]           @relation("AppBusinessOwner")
+    itOwnerApps            Application[]           @relation("AppITOwner")
+    architectureDecisions  ArchitectureDecision[]  @relation("ArchDecisionAuthor")
+    guideProgress          UserGuideProgress?
+    pageVisits             PageFirstVisit[]
+    diagramComments        DiagramComment[]        @relation("DiagramCommentAuthor")
+    diagramCommentReplies  DiagramCommentReply[]   @relation("DiagramReplyAuthor")
+    diagramAssignments     DiagramTaskAssignment[] @relation("DiagramAssignee")
+    diagramAssignedTasks   DiagramTaskAssignment[] @relation("DiagramAssigner")
+    ownedCertifications    WorkspaceCertification[] @relation("CertificationOwner")
+    ariaSessions           AriaSession[]
+    ariaDismissals         AriaDismissal[]
   }
 
 model Membership {
@@ -619,20 +639,36 @@ model Capability {
   slug             String
   description      String?   @db.Text
   nameTranslations Json?
+  level            Int       @default(0)
+  parentId         String?
+  ownerId          String?
+  strategicValue   String?
+  aiPotential      String?
+  maturityScore    Float?
+  // Sector catalog fields
+  code             String?   // catalog reference code, unique within a workspace
+  isFromCatalog    Boolean   @default(false)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   deletedAt        DateTime?
 
-  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  businessUnit  BusinessUnit? @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
-  domain        Domain        @relation(fields: [domainId], references: [id], onDelete: Cascade)
-  processes     Process[]
-  painPoints    PainPoint[]
-  opportunities Opportunity[]
+  workspace        Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  businessUnit     BusinessUnit?      @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
+  domain           Domain             @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  parent           Capability?        @relation("CapabilityTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children         Capability[]       @relation("CapabilityTree")
+  owner            User?              @relation("CapabilityOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  processes        Process[]
+  painPoints       PainPoint[]
+  opportunities    Opportunity[]
+  appCapabilities  AppCapabilityMap[]
 
   @@unique([workspaceId, slug])
+  @@unique([workspaceId, code])
   @@index([domainId])
   @@index([businessUnitId])
+  @@index([parentId])
+  @@index([ownerId])
 }
 
 model Process {
@@ -646,24 +682,32 @@ model Process {
   slug             String
   description      String?   @db.Text
   nameTranslations Json?
+  frequency        String?
+  volumePerDay     Int?
+  manualEffortH    Float?
+  automationRate   Float?
+  dataQuality      String?
+  painLevel        Int?
+  aiPotential      String?
+  processStatus    String    @default("active")
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   deletedAt        DateTime?
 
-  workspace     Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  businessUnit  BusinessUnit?        @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
-  domain        Domain               @relation(fields: [domainId], references: [id], onDelete: Cascade)
-  capability    Capability?          @relation(fields: [capabilityId], references: [id], onDelete: SetNull)
-  owner         User?                @relation("ProcessOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  subProcesses  SubProcess[]
-  painPoints    PainPoint[]
-  dataProducts  DataProductProcessLink[]
-  reportingAssets ReportingAsset[]
-  kpis          KPI[]
-    opportunities Opportunity[]
-    applications  ProcessApplication[]
-    dataSources   ProcessDataSource[]
-    focusSelections UserProcessFocusSelection[]
+  workspace       Workspace                  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  businessUnit    BusinessUnit?              @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
+  domain          Domain                     @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  capability      Capability?                @relation(fields: [capabilityId], references: [id], onDelete: SetNull)
+  owner           User?                      @relation("ProcessOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  subProcesses    SubProcess[]
+  painPoints      PainPoint[]
+  kpis            KPI[]
+  opportunities   Opportunity[]
+  applications    ProcessApplication[]
+  dataSources     ProcessDataSource[]
+  focusSelections UserProcessFocusSelection[]
+  steps           ProcessStep[]
+  diagram         ProcessDiagram?
 
   @@unique([workspaceId, slug])
   @@index([domainId])
@@ -732,24 +776,43 @@ model PainPoint {
 }
 
 model Application {
-  id               String    @id @default(cuid())
-  workspaceId      String
-  name             String
-  slug             String
-  vendor           String?
-  description      String?   @db.Text
-  nameTranslations Json?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  deletedAt        DateTime?
+  id                  String    @id @default(cuid())
+  workspaceId         String
+  name                String
+  slug                String
+  vendor              String?
+  description         String?   @db.Text
+  nameTranslations    Json?
+  lifecycleState      String    @default("active")
+  criticality         String?
+  deploymentType      String?
+  url                 String?
+  documentationUrl    String?
+  annualCost          Float?
+  userCount           Int?
+  aiReadinessScore    Float?
+  qualityScore        Float?
+  businessOwnerId     String?
+  itOwnerId           String?
+  modernizationAdvice Json?
+  appTags             Json?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
 
-  workspace     Workspace                @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  processes     ProcessApplication[]
-  dataSources   ApplicationDataSource[]
-  opportunities OpportunityApplication[]
+  workspace      Workspace                @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  businessOwner  User?                    @relation("AppBusinessOwner", fields: [businessOwnerId], references: [id], onDelete: SetNull)
+  itOwner        User?                    @relation("AppITOwner", fields: [itOwnerId], references: [id], onDelete: SetNull)
+  processes      ProcessApplication[]
+  dataSources    ApplicationDataSource[]
+  opportunities  OpportunityApplication[]
+  capabilities   AppCapabilityMap[]
+  technologies   AppTechnologyMap[]
 
   @@unique([workspaceId, slug])
   @@index([workspaceId])
+  @@index([businessOwnerId])
+  @@index([itOwnerId])
 }
 
 model DataSource {
@@ -908,6 +971,15 @@ model Opportunity {
   realizedValue       Decimal?           @db.Decimal(18, 2)
   overallScore        Decimal?           @db.Decimal(6, 2)
   currencyCode        String             @default("USD") @db.VarChar(3)
+  // ── Intake / quick-capture fields (added for simplified workflow) ──
+  detectedBy          String             @default("manual") // "ai" | "manual" | "terrain"
+  sourceText          String?            @db.Text           // raw natural-language input
+  gainEstimate        String?            @db.VarChar(255)   // e.g. "-40% processing time"
+  complexity          String             @default("medium") // "low" | "medium" | "high"
+  priorityLevel       String             @default("P2")     // "P0" | "P1" | "P2"
+  domainLabel         String?            @db.VarChar(80)    // simple label when no Domain FK
+  rejectionReason     String?            @db.Text
+  useCaseId           String?            @unique
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   deletedAt           DateTime?
@@ -926,7 +998,6 @@ model Opportunity {
   scoreTemplate    ScoreTemplate?           @relation(fields: [scoreTemplateId], references: [id], onDelete: SetNull)
   currentDecision  Decision?                @relation("CurrentOpportunityDecision", fields: [currentDecisionId], references: [id], onDelete: SetNull)
   assessments      OpportunityAssessment[]
-  dataProducts      DataProductOpportunityLink[]
   applications     OpportunityApplication[]
   dataSources      OpportunityDataSource[]
   kpis             OpportunityKPI[]
@@ -942,6 +1013,7 @@ model Opportunity {
   benefitMetrics   BenefitMetric[]
   adoptionMetrics  AdoptionMetric[]
   attachments      Attachment[]
+  useCase          UseCase?                 @relation("OpportunityUseCase")
 
   @@index([workspaceId, status])
   @@index([processId, status])
@@ -1201,108 +1273,6 @@ model ApplicationDataSource {
 
   @@id([applicationId, dataSourceId])
   @@index([dataSourceId])
-}
-
-// Process-centric data products keep AI readiness visible without becoming a full data catalog.
-model DataProduct {
-  id              String                     @id @default(cuid())
-  workspaceId     String
-  ownerId         String?
-  name            String
-  slug            String
-  description     String?                    @db.Text
-  medallionStage  MedallionStage             @default(BRONZE)
-  readinessStatus DataProductReadinessStatus @default(NOT_READY)
-  freshness       String?
-  classification  String?
-  sourceSystem    String?
-  duckdbDatasetRef String?
-  reportingDatasetRef String?
-  createdAt       DateTime                   @default(now())
-  updatedAt       DateTime                   @updatedAt
-  deletedAt       DateTime?
-
-  workspace        Workspace                     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  owner            User?                         @relation("DataProductOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  processLinks     DataProductProcessLink[]
-  opportunityLinks DataProductOpportunityLink[]
-  reportingAssets  ReportingAsset[]
-  qualitySignals   DataQualitySignal[]
-
-  @@unique([workspaceId, slug])
-  @@index([workspaceId, medallionStage])
-  @@index([workspaceId, readinessStatus])
-  @@index([ownerId])
-}
-
-model DataProductProcessLink {
-  dataProductId String
-  processId     String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  dataProduct DataProduct @relation(fields: [dataProductId], references: [id], onDelete: Cascade)
-  process     Process     @relation(fields: [processId], references: [id], onDelete: Cascade)
-
-  @@id([dataProductId, processId])
-  @@index([processId])
-}
-
-model DataProductOpportunityLink {
-  dataProductId String
-  opportunityId String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  dataProduct DataProduct @relation(fields: [dataProductId], references: [id], onDelete: Cascade)
-  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
-
-  @@id([dataProductId, opportunityId])
-  @@index([opportunityId])
-}
-
-model ReportingAsset {
-  id            String    @id @default(cuid())
-  workspaceId   String
-  dataProductId String
-  processId     String?
-  name          String
-  slug          String
-  description   String?   @db.Text
-  assetType     String?
-  externalUrl   String?
-  supersetDashboardUrl String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
-
-  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  dataProduct DataProduct @relation(fields: [dataProductId], references: [id], onDelete: Cascade)
-  process     Process?    @relation(fields: [processId], references: [id], onDelete: SetNull)
-
-  @@unique([workspaceId, slug])
-  @@index([dataProductId])
-  @@index([processId])
-}
-
-model DataQualitySignal {
-  id            String                  @id @default(cuid())
-  workspaceId   String
-  dataProductId String
-  signalType    DataQualitySignalType
-  status        DataQualitySignalStatus @default(UNKNOWN)
-  label         String
-  value         String?
-  notes         String?                 @db.Text
-  measuredAt    DateTime?
-  createdAt     DateTime                @default(now())
-  updatedAt     DateTime                @updatedAt
-
-  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  dataProduct DataProduct @relation(fields: [dataProductId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId, signalType])
-  @@index([dataProductId, status])
 }
 
 // Governance keeps prioritization and approval separate from execution.
@@ -1620,4 +1590,715 @@ model VerificationToken {
   updatedAt  DateTime @updatedAt
 
   @@unique([identifier, token])
+}
+
+// ── Use Cases ─────────────────────────────────────────────────────────────────
+// A structured, AI-generated solution spec linked to a validated Opportunity.
+
+model UseCase {
+  id                  String    @id @default(cuid())
+  workspaceId         String
+  opportunityId       String    @unique   // 1-to-1 with Opportunity
+  title               String
+  processDescription  String    @db.Text
+  expectedOutcome     String    @db.Text
+  solutionType        String    @default("automation") // "automation"|"assistant"|"analysis"|"generation"
+  solutionDescription String?   @db.Text
+  processSteps        Json?     // string[]
+  kpis                Json      // [{ label, baseline, target, unit }]
+  roiEstimated        Json      // { savings_hours_per_month, savings_euros_per_year, payback_months, assumptions }
+  effortDays          Int       @default(0)
+  effortBreakdown     Json?     // { design, development, testing, deployment }
+  dataRequired        Json      // [{ source, type, available }]
+  risks               Json      // [{ description, mitigation, level }]
+  recommendedTools    Json?     // string[]
+  nextSteps           Json?     // string[]
+  priorityLevel       String    @default("P2")    // "P0" | "P1" | "P2"
+  status              String    @default("backlog") // "backlog"|"analysis"|"active"|"deployed"|"paused"
+  assignedTo          String?   // responsible business owner user id
+  technicalOwner      String?   // DSI / IT manager user id
+  consultantId        String?
+  validatedBy         String?
+  validatedAt         DateTime?
+  deployedAt          DateTime?
+  constraints         String?   @db.Text
+  // Post-deployment real metrics
+  realKpis            Json?     // [{ label, realValue }]
+  realRoiAnalysis     String?   @db.Text   // Claude-generated impact analysis
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  opportunity Opportunity    @relation("OpportunityUseCase", fields: [opportunityId], references: [id], onDelete: Cascade)
+  diagram     ProcessDiagram?
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, priorityLevel])
+}
+
+// ── Process Diagrams ──────────────────────────────────────────────────────────
+
+model ProcessDiagram {
+  id               String    @id @default(cuid())
+  useCaseId        String?   @unique
+  processId        String?   @unique  // alternative entry point from Process
+  xml              String    @db.Text
+  svg              String?   @db.Text
+  thumbnail        String?   @db.Text // base64 mini-SVG preview
+  versionCount     Int       @default(1)
+  validationStatus String    @default("draft") // draft|in-review|validated|rejected
+  baMetadata       Json?     // {[elementId]: {duration?,actor?,tool?,painScore?,automatable?,kpi?}}
+  lastAutoSave     DateTime?
+  createdBy        String
+  updatedBy        String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  useCase     UseCase?               @relation(fields: [useCaseId], references: [id], onDelete: Cascade)
+  process     Process?               @relation(fields: [processId], references: [id], onDelete: Cascade)
+  versions    ProcessDiagramVersion[]
+  comments    DiagramComment[]
+  assignments DiagramTaskAssignment[]
+}
+
+model ProcessDiagramVersion {
+  id            String   @id @default(cuid())
+  diagramId     String
+  versionNumber Int
+  xml           String   @db.Text
+  svg           String?  @db.Text
+  changeSummary String?  @db.Text
+  autoSaved     Boolean  @default(false)
+  createdBy     String
+  createdAt     DateTime @default(now())
+
+  diagram ProcessDiagram @relation(fields: [diagramId], references: [id], onDelete: Cascade)
+  author  User           @relation(fields: [createdBy], references: [id])
+
+  @@unique([diagramId, versionNumber])
+  @@index([diagramId, createdAt])
+}
+
+model DiagramComment {
+  id          String    @id @default(cuid())
+  diagramId   String
+  authorId    String
+  elementId   String?   // BPMN element ID, null = general comment
+  elementType String?   // task|gateway|event|pool|lane|sequence
+  content     String    @db.Text
+  resolved    Boolean   @default(false)
+  resolvedBy  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  diagram ProcessDiagram         @relation(fields: [diagramId], references: [id], onDelete: Cascade)
+  author  User                   @relation("DiagramCommentAuthor", fields: [authorId], references: [id])
+  replies DiagramCommentReply[]
+
+  @@index([diagramId, elementId])
+  @@index([diagramId, resolved])
+}
+
+model DiagramCommentReply {
+  id        String   @id @default(cuid())
+  commentId String
+  authorId  String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comment DiagramComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  author  User           @relation("DiagramReplyAuthor", fields: [authorId], references: [id])
+
+  @@index([commentId])
+}
+
+model DiagramTaskAssignment {
+  id         String    @id @default(cuid())
+  diagramId  String
+  elementId  String    // BPMN task element ID
+  assigneeId String
+  assignedBy String
+  role       String?   // analyst|reviewer|approver|observer
+  dueDate    DateTime?
+  status     String    @default("pending") // pending|in-progress|done
+  notes      String?   @db.Text
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  diagram  ProcessDiagram @relation(fields: [diagramId], references: [id], onDelete: Cascade)
+  assignee User           @relation("DiagramAssignee", fields: [assigneeId], references: [id])
+  assigner User           @relation("DiagramAssigner", fields: [assignedBy], references: [id])
+
+  @@unique([diagramId, elementId, assigneeId])
+  @@index([diagramId, elementId])
+  @@index([assigneeId])
+}
+
+// ── Email OTP Verification ────────────────────────────────────────────────────
+
+model EmailVerification {
+  id         String   @id @default(cuid())
+  email      String
+  code       String   // bcrypt-hashed 6-digit code
+  expires_at DateTime
+  attempts   Int      @default(0)
+  verified   Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  @@index([email])
+}
+
+// ── Process Steps ──────────────────────────────────────────────────────────────
+
+model ProcessStep {
+  id          String   @id @default(cuid())
+  processId   String
+  name        String
+  description String?  @db.Text
+  order       Int
+  actor       String   @default("human") // human|system|automated
+  tool        String?
+  durationMin Int?
+  isManual    Boolean  @default(true)
+  painScore   Int?
+  automatable Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  process Process @relation(fields: [processId], references: [id], onDelete: Cascade)
+
+  @@index([processId, order])
+}
+
+// ── Technology ────────────────────────────────────────────────────────────────
+
+model Technology {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  name            String
+  category        String    // os|database|runtime|framework|infra|security|cloud
+  vendor          String?
+  versionCurrent  String?
+  lifecycleState  String    @default("adopt") // emerging|adopt|trial|hold|phaseout
+  eolDate         DateTime?
+  licenseType     String?
+  annualCost      Float?
+  riskLevel       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  workspace    Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  applications AppTechnologyMap[]
+
+  @@index([workspaceId])
+  @@index([workspaceId, lifecycleState])
+}
+
+// ── Junction: Application <-> Capability ──────────────────────────────────────
+
+model AppCapabilityMap {
+  applicationId String
+  capabilityId  String
+  coverage      String @default("partial") // full|partial|planned
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  capability  Capability  @relation(fields: [capabilityId], references: [id], onDelete: Cascade)
+
+  @@id([applicationId, capabilityId])
+  @@index([capabilityId])
+}
+
+// ── Junction: Application <-> Technology ──────────────────────────────────────
+
+model AppTechnologyMap {
+  applicationId String
+  technologyId  String
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  technology  Technology  @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@id([applicationId, technologyId])
+  @@index([technologyId])
+}
+
+// ── AI Readiness Assessment ───────────────────────────────────────────────────
+
+model AIReadinessAssessment {
+  id                   String   @id @default(cuid())
+  workspaceId          String
+  entityType           String
+  entityId             String
+  assessedAt           DateTime
+  assessedBy           String
+  dataQualityScore     Float
+  integrationScore     Float
+  complianceScore      Float
+  automationPotential  Float
+  operationalFitScore  Float
+  overallScore         Float
+  classification       String   // leader|advanced|developing|beginner
+  breakdown            Json
+  recommendations      Json
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([entityType, entityId])
+  @@index([workspaceId])
+}
+
+// ── Architecture Decisions ────────────────────────────────────────────────────
+
+model ArchitectureDecision {
+  id                 String    @id @default(cuid())
+  workspaceId        String
+  title              String
+  status             String    @default("proposed") // proposed|accepted|superseded|deprecated
+  decisionDate       DateTime
+  authorId           String
+  context            String    @db.Text
+  decision           String    @db.Text
+  rationale          String    @db.Text
+  consequences       String?   @db.Text
+  alternatives       Json?
+  impactedApps       Json?
+  impactedProcesses  Json?
+  expectedOutcome    String?   @db.Text
+  observedOutcome    String?   @db.Text
+  outcomeDate        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  author    User      @relation("ArchDecisionAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([workspaceId, status])
+  @@index([authorId])
+}
+
+// ── Sprint 4 ──────────────────────────────────────────────────────────────────
+
+// P24 — Executive Copilot
+model CopilotConversation {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String
+  title       String?
+  messages    Json     // [{role:"user"|"assistant", content:string, createdAt:string}]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, userId])
+}
+
+// P25 — Scenario Engine
+model Scenario {
+  id                String   @id @default(cuid())
+  workspaceId       String
+  title             String
+  description       String?  @db.Text
+  status            String   @default("draft") // draft|active|archived
+  items             Json?    // [{opportunityId?,title,investmentEuros,expectedGainEuros,timelineMonths,effort}]
+  totalInvestment   Float?
+  totalExpectedGain Float?
+  roi               Float?
+  createdById       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status])
+}
+
+// P28 — Notification Center
+model Notification {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String
+  type        String   // opportunity_assigned|usecase_validated|survey_published|adr_created|etc
+  title       String
+  body        String?  @db.Text
+  link        String?
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, userId, read])
+  @@index([workspaceId, createdAt])
+}
+
+// P33 — Webhooks
+model Webhook {
+  id          String   @id @default(cuid())
+  workspaceId String
+  url         String   @db.Text
+  events      Json     // string[] of event types
+  secret      String
+  active      Boolean  @default(true)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace   Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  deliveries  WebhookDelivery[]
+
+  @@index([workspaceId, active])
+}
+
+model WebhookDelivery {
+  id          String   @id @default(cuid())
+  webhookId   String
+  eventType   String
+  payload     Json
+  statusCode  Int?
+  responseBody String? @db.Text
+  success     Boolean  @default(false)
+  duration    Int?     // ms
+  createdAt   DateTime @default(now())
+
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId, success])
+  @@index([webhookId, createdAt])
+}
+
+// ── Sprint 3 ──────────────────────────────────────────────────────────────────
+
+// P19 — Ingestion pipeline
+model IngestionJob {
+  id                String   @id @default(cuid())
+  workspaceId       String
+  fileName          String
+  fileType          String   // pdf|docx|xlsx|csv|txt
+  fileSize          Int?
+  status            String   @default("pending") // pending|processing|done|failed
+  rawContent        String?  @db.LongText
+  parsedData        Json?
+  extractedEntities Json?
+  targetEntityType  String?  // application|process|capability
+  errorMessage      String?  @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
+}
+
+// P20 — AI Relationship Suggester
+model RelationshipSuggestion {
+  id          String   @id @default(cuid())
+  workspaceId String   @db.VarChar(30)  // CUID max 25 chars
+  sourceType  String   @db.VarChar(50)  // entity type names are short
+  sourceId    String   @db.VarChar(30)  // CUID max 25 chars
+  targetType  String   @db.VarChar(50)  // entity type names are short
+  targetId    String   @db.VarChar(30)  // CUID max 25 chars
+  confidence  Float    @default(0)
+  rationale   String   @db.Text
+  status      String   @default("pending") // pending|accepted|rejected
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  // @@unique key size: (30+50+30+50+30) × 4 bytes (utf8mb4) = 760 bytes — well under 3072
+  @@unique([workspaceId, sourceType, sourceId, targetType, targetId])
+  @@index([workspaceId, status])
+  @@index([sourceType, sourceId])
+  @@index([targetType, targetId])
+}
+
+// P21 — AI Data Quality Report
+model DataQualityReport {
+  id              String   @id @default(cuid())
+  workspaceId     String
+  entityType      String   // workspace|application|process|capability
+  entityId        String?
+  overallScore    Int      @default(0) // 0-100
+  issues          Json?
+  recommendations Json?
+  generatedAt     DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, entityType])
+  @@index([workspaceId, generatedAt])
+}
+
+// P22 — Survey & Attestation engine
+model Survey {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  title            String
+  description      String?   @db.Text
+  status           String    @default("draft") // draft|active|closed
+  dueDate          DateTime?
+  targetEntityType String?   // application|process|capability
+  targetEntityId   String?
+  createdById      String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  workspace  Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  questions  SurveyQuestion[]
+  responses  SurveyResponse[]
+
+  @@index([workspaceId, status])
+}
+
+model SurveyQuestion {
+  id       String  @id @default(cuid())
+  surveyId String
+  order    Int     @default(0)
+  type     String  @default("text") // text|rating|choice|yesno
+  label    String  @db.Text
+  options  Json?   // For choice type: array of strings
+  required Boolean @default(false)
+
+  survey Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@index([surveyId, order])
+}
+
+model SurveyResponse {
+  id           String   @id @default(cuid())
+  surveyId     String
+  respondentId String?
+  answers      Json     // { questionId: answer } map
+  submittedAt  DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  survey Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@index([surveyId])
+  @@index([respondentId])
+}
+
+model Attestation {
+  id           String    @id @default(cuid())
+  workspaceId  String
+  entityType   String    // application|process|capability
+  entityId     String
+  status       String    @default("pending") // pending|attested|expired
+  attestedById String?
+  attestedAt   DateTime?
+  validUntil   DateTime?
+  notes        String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, entityType, entityId])
+  @@index([workspaceId, status])
+}
+
+// ── User Guide System ─────────────────────────────────────────────────────────
+
+model UserGuideProgress {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  toursCompleted   Json      // string[] — tour ids completed
+  toursDismissed   Json      // string[] — tour ids dismissed
+  checklistSteps   Json      // Record<string, string | null> — step_id → ISO timestamp or null
+  helpEnabled      Boolean   @default(true)
+  tooltipsEnabled  Boolean   @default(true)
+  lastHelpOpenedAt DateTime?
+  totalHelpViews   Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PageFirstVisit {
+  id        String   @id @default(cuid())
+  userId    String
+  pagePath  String
+  visitedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pagePath])
+  @@index([userId])
+}
+
+// ── LLM Multi-Provider Router ─────────────────────────────────────────────────
+
+model LLMCallLog {
+  id           String   @id @default(cuid())
+  workspaceId  String?
+  task         String                        // task identifier (e.g. "opportunity_structure")
+  provider     String                        // ollama|groq|claude
+  model        String   @default("unknown")
+  latencyMs    Int      @default(0)
+  tokensUsed   Int?
+  costCents    Int      @default(0)          // 0 for open source, estimated for Claude
+  fallbackUsed Boolean  @default(false)
+  fallbackTo   String?                       // next provider if this one failed
+  success      Boolean
+  error        String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  @@index([workspaceId, createdAt])
+  @@index([provider, createdAt])
+  @@index([task, success])
+  @@index([createdAt])
+}
+
+model LLMConfig {
+  id              String   @id @default(cuid())
+  strategy        String   @default("auto")    // auto|ollama_only|groq_only|claude_only
+  ollamaEnabled   Boolean  @default(true)
+  groqEnabled     Boolean  @default(true)
+  claudeEnabled   Boolean  @default(true)
+  claudeForceTasks Json    @default("[]")       // string[] — always use Claude for these tasks
+  logEnabled      Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+  updatedBy       String?
+}
+
+// ── Certification catalog (global, seeded once) ───────────────────────────────
+model CertificationCatalog {
+  id               String   @id @default(cuid())
+  code             String   @unique
+  name             String
+  shortName        String
+  family           String   // qualite|securite|sectorielle|reglementaire|france|donnees
+  description      String   @db.Text
+  scope            String   @db.Text
+  keyRequirements  Json     @default("[]")
+  typicalProcesses Json     @default("[]")
+  typicalDomains   Json     @default("[]")
+  certifyingBody   String?
+  validityYears    Int?
+  auditFrequency   String?
+  isMandatory      Boolean  @default(false)
+  mandatoryFor     Json?
+  riskIfMissing    String?  @db.Text
+  officialUrl      String?
+  costEstimate     String?
+  sectors          Json?    // string[] — sector codes where this is relevant
+  sizeMin          Json?    // string[] — minimum company sizes: tpe|pme|eti|ge
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  workspaceCertifications WorkspaceCertification[]
+
+  @@index([family])
+  @@index([isMandatory])
+}
+
+// ── Workspace certifications ──────────────────────────────────────────────────
+// Tracks both obtained certifications and targets declared during onboarding.
+model WorkspaceCertification {
+  id             String    @id @default(cuid())
+  workspaceId    String
+  catalogId      String
+  // obtained | in_progress | planned | not_applicable | expired
+  status         String
+  obtainedDate   DateTime?
+  expiryDate     DateTime?
+  nextAuditDate  DateTime?
+  certifyingBody String?
+  certificateRef String?
+  documentUrl    String?
+  scopeNotes     String?   @db.Text
+  ownerId        String?
+  notes          String?   @db.Text
+  // onboarding_current | onboarding_target | manual | auto_sector
+  source         String    @default("manual")
+  alert90Sent    Boolean   @default(false)
+  alert30Sent    Boolean   @default(false)
+  alert0Sent     Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  workspace Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  catalog   CertificationCatalog @relation(fields: [catalogId], references: [id], onDelete: Restrict)
+  owner     User?                @relation("CertificationOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  links     CertificationLink[]
+
+  @@unique([workspaceId, catalogId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, expiryDate])
+  @@index([ownerId])
+}
+
+// ── Certification ↔ entity links ──────────────────────────────────────────────
+model CertificationLink {
+  id                       String   @id @default(cuid())
+  workspaceCertificationId String
+  entityType               String   // process|application|capability|domain
+  entityId                 String
+  coverage                 String   @default("full") // full|partial
+  notes                    String?
+  createdAt                DateTime @default(now())
+
+  certification WorkspaceCertification @relation(fields: [workspaceCertificationId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceCertificationId, entityType, entityId])
+  @@index([entityType, entityId])
+}
+
+// ── Aria — Assistante IA contextuelle ────────────────────────────────────────
+
+model AriaSession {
+  id          String   @id @default(cuid())
+  userId      String
+  workspaceId String
+  pagePath    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  messages AriaMessage[]
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([workspaceId, createdAt])
+}
+
+model AriaMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      String   // 'user' | 'aria'
+  content   String   @db.Text
+  pagePath  String
+  actions   Json?
+  createdAt DateTime @default(now())
+
+  session AriaSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+model AriaDismissal {
+  id           String   @id @default(cuid())
+  userId       String
+  suggestionId String
+  pagePath     String
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, suggestionId])
+  @@index([userId])
 }

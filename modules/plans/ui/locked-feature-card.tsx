@@ -27,14 +27,14 @@ export function LockedFeatureCard({
 }: LockedFeatureCardProps) {
   return (
     <div className="space-y-4">
-      <Card className="border-dashed border-primary/20 bg-white">
+      <Card className="border-dashed border-[--green-border] bg-[--bg-card]">
         <CardHeader className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline">{planLabel}</Badge>
             {previewLabel ? <Badge variant="secondary">{previewLabel}</Badge> : null}
           </div>
           <div className="flex items-start gap-3">
-            <span className="rounded-2xl bg-primary/10 p-2 text-primary">
+            <span className="rounded-2xl bg-[--green-dim] p-2 text-[--green]">
               <Lock className="h-4 w-4" />
             </span>
             <div className="space-y-2">
@@ -48,7 +48,7 @@ export function LockedFeatureCard({
             {bullets.map((bullet) => (
               <div
                 key={bullet}
-                className="rounded-xl border border-border/80 bg-slate-50 px-3 py-3 text-sm leading-6 text-slate-600"
+                className="rounded-xl border border-[--border] bg-[--bg-hover] px-3 py-3 text-sm leading-6 text-[--text-secondary]"
               >
                 {bullet}
               </div>

@@ -45,7 +45,9 @@ export async function getCurrentUser() {
       image: true,
       status: true,
       preferredLocale: true,
-      preferences: true
+      preferences: true,
+      userFunction: true,
+      isPlatformAdmin: true
     }
   });
 
@@ -140,4 +142,33 @@ export async function getCurrentWorkspaceContext(options?: { requireMembership?:
     subscriptionPlan: membership?.workspace.tenant.subscriptionPlan ?? null,
     role: membership?.role ?? null
   };
+}
+
+/**
+ * Gate for Platform Admin back-office routes.
+ * Verifies the authenticated user has isPlatformAdmin = true.
+ * Redirects to /unauthorized (403) if not.
+ */
+export async function requirePlatformAdminAccess() {
+  const session = await getCurrentSession();
+
+  if (!session?.user?.id) {
+    redirect("/login" as Route);
+  }
+
+  const user = await requireAuthenticatedUser();
+
+  if (!user.isPlatformAdmin) {
+    redirect("/unauthorized" as Route);
+  }
+
+  return { session, user };
+}
+
+/**
+ * @deprecated Use requirePlatformAdminAccess() instead.
+ * Kept for backward compatibility during the transition period.
+ */
+export async function requireSuperAdminAccess() {
+  return requirePlatformAdminAccess();
 }

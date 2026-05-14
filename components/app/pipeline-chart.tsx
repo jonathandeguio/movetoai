@@ -34,21 +34,23 @@ export function PipelineChart({
       <CardContent className="h-[280px] pt-2">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
             <XAxis
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#475569", fontSize: 12 }}
+              tick={{ fill: "var(--text-muted)", fontSize: 12 }}
             />
             <Tooltip
               contentStyle={{
-                borderRadius: 16,
-                border: "1px solid #E2E8F0",
-                boxShadow: "0 20px 45px rgba(15, 23, 42, 0.10)"
+                borderRadius: "var(--r-xl)",
+                border: "1px solid var(--border)",
+                background: "var(--bg-secondary)",
+                color: "var(--text-primary)",
+                boxShadow: "0 20px 45px rgba(0,0,0,0.4)"
               }}
             />
-            <Bar dataKey="score" radius={[10, 10, 0, 0]} fill="#2563EB" />
+            <Bar dataKey="score" radius={[10, 10, 0, 0]} fill="var(--green)" />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

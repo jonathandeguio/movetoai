@@ -93,7 +93,7 @@ function renderSelect(
         id={id}
         name={id}
         defaultValue={value}
-        className="flex h-11 w-full rounded-lg border border-border bg-white px-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary/30"
+        className="flex h-11 w-full rounded-lg border border-[--border] bg-[--bg-card] px-3 text-sm text-[--text-primary] shadow-sm outline-none transition focus:border-[--border-focus]"
       >
         {options.map((option) => (
           <option key={option.value || `${id}-all`} value={option.value}>
@@ -122,7 +122,7 @@ export function OpportunityFilterPanel({
   clearHref
 }: OpportunityFilterPanelProps) {
   return (
-    <Card className="border-primary/10">
+    <Card className="border-[--green-border]">
       <CardContent className="space-y-6 p-5">
         <div className="flex flex-wrap gap-2">
           {viewItems.map((view) => (
@@ -131,7 +131,7 @@ export function OpportunityFilterPanel({
                 variant={view.active ? "default" : view.locked ? "secondary" : "outline"}
                 className={cn(
                   "cursor-pointer",
-                  view.active ? "" : "hover:border-primary/20"
+                  view.active ? "" : "hover:border-[--green-border]"
                 )}
               >
                 {view.label}
@@ -158,12 +158,12 @@ export function OpportunityFilterPanel({
               {renderSelect("riskLevel", labels.risk, filters.riskLevel, options.risks)}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-primary/20 bg-primary/5 p-4">
+            <div className="rounded-2xl border border-dashed border-[--green-border] bg-[--green-dim] p-4">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline">{advancedLock.badge}</Badge>
               </div>
-              <p className="mt-3 text-base font-semibold text-slate-950">{advancedLock.title}</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{advancedLock.description}</p>
+              <p className="mt-3 text-base font-semibold text-[--text-primary]">{advancedLock.title}</p>
+              <p className="mt-2 text-sm leading-6 text-[--text-secondary]">{advancedLock.description}</p>
               <Button className="mt-4" variant="outline" asChild>
                 <Link href={advancedLock.href}>{advancedLock.ctaLabel}</Link>
               </Button>
@@ -180,12 +180,12 @@ export function OpportunityFilterPanel({
               )}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-sky-200 bg-sky-50/70 p-4">
+            <div className="rounded-2xl border border-dashed border-[--blue-border] bg-[--blue-dim] p-4">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline">{enterpriseLock.badge}</Badge>
               </div>
-              <p className="mt-3 text-base font-semibold text-slate-950">{enterpriseLock.title}</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{enterpriseLock.description}</p>
+              <p className="mt-3 text-base font-semibold text-[--text-primary]">{enterpriseLock.title}</p>
+              <p className="mt-2 text-sm leading-6 text-[--text-secondary]">{enterpriseLock.description}</p>
               <Button className="mt-4" variant="outline" asChild>
                 <Link href={enterpriseLock.href}>{enterpriseLock.ctaLabel}</Link>
               </Button>

@@ -9,8 +9,8 @@ export function MetricCard({ label, value }: MetricCardProps) {
   return (
     <Card>
       <CardContent className="space-y-2 p-6">
-        <p className="text-sm font-medium text-slate-500">{label}</p>
-        <p className="text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
+        <p className="text-sm font-medium text-[--text-muted]">{label}</p>
+        <p className="text-3xl font-semibold tracking-tight text-[--text-primary]">{value}</p>
       </CardContent>
     </Card>
   );

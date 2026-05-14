@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 
 import { BusinessStructureEmptyState } from "@/components/business-structure/empty-state";
 import { DetailSection } from "@/components/business-structure/detail-section";
+import { DomainEditForm } from "@/components/business-structure/domain-edit-form";
+import { CapabilityCreateForm } from "@/components/business-structure/capability-create-form";
+import { CapabilityEditForm } from "@/components/business-structure/capability-edit-form";
 import { OpportunityPreviewCard } from "@/components/business-structure/opportunity-preview-card";
 import { MetricCard } from "@/components/app/metric-card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +23,8 @@ export default async function DomainDetailPage({
 }) {
   const locale = await getRequestLocale();
   const messages = getMessages(locale);
-  const { workspace } = await requirePermission("business-structure.manage");
+  const { workspace, roleCode } = await requirePermission("business-structure.manage");
+  const canManage = ["WORKSPACE_ADMIN", "ENTERPRISE_ARCHITECT", "TRANSFORMATION_MANAGER"].includes(roleCode ?? "");
   const { id } = await params;
   const domain = await getDomainDetail(workspace!.id, id);
 
@@ -30,7 +34,7 @@ export default async function DomainDetailPage({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-primary/10 bg-white p-8 shadow-soft-sm">
+      <section className="rounded-3xl border border-[--green-border] bg-[--bg-card] p-8 shadow-soft-sm">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -40,17 +44,24 @@ export default async function DomainDetailPage({
               ) : null}
             </div>
             <div className="space-y-3">
-              <h2 className="max-w-4xl text-4xl font-semibold tracking-tight text-slate-950 text-balance">
+              <h2 className="max-w-4xl text-4xl font-semibold tracking-tight text-[--text-primary] text-balance">
                 {domain.name}
               </h2>
-              <p className="max-w-3xl text-base leading-8 text-slate-600">
+              <p className="max-w-3xl text-base leading-8 text-[--text-secondary]">
                 {domain.description ?? messages.app.domainsModule.noDescription}
               </p>
             </div>
           </div>
-          <Button variant="outline" asChild>
-            <Link href="/app/opportunities">{messages.common.ctas.exploreApp}</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <DomainEditForm
+              domainId={domain.id}
+              initialName={domain.name}
+              initialDescription={domain.description ?? null}
+            />
+            <Button variant="outline" asChild>
+              <Link href="/app/opportunities">{messages.common.ctas.exploreApp}</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -81,9 +92,9 @@ export default async function DomainDetailPage({
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {domain.capabilities.map((capability) => (
-              <div key={capability.id} className="rounded-2xl border border-border/80 p-4">
-                <h3 className="text-base font-semibold text-slate-950">{capability.name}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
+              <div key={capability.id} className="rounded-2xl border border-[--border] p-4">
+                <h3 className="text-base font-semibold text-[--text-primary]">{capability.name}</h3>
+                <p className="mt-2 text-sm leading-6 text-[--text-secondary]">
                   {capability.description ?? messages.app.domainsModule.noDescription}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -94,8 +105,22 @@ export default async function DomainDetailPage({
                     {messages.common.labels.linkedOpportunities}: {capability._count.opportunities}
                   </Badge>
                 </div>
+                {canManage && (
+                  <div className="mt-4">
+                    <CapabilityEditForm
+                      capabilityId={capability.id}
+                      initialName={capability.name}
+                      initialDescription={capability.description ?? null}
+                    />
+                  </div>
+                )}
               </div>
             ))}
+          </div>
+        )}
+        {canManage && (
+          <div className="mt-4">
+            <CapabilityCreateForm domainId={domain.id} />
           </div>
         )}
       </DetailSection>
@@ -112,16 +137,16 @@ export default async function DomainDetailPage({
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {domain.processes.map((process) => (
-              <div key={process.id} className="rounded-2xl border border-border/80 p-4">
+              <div key={process.id} className="rounded-2xl border border-[--border] p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-2">
                     <Link
                       href={`/app/processes/${process.id}` as Route}
-                      className="text-base font-semibold text-slate-950 transition hover:text-primary"
+                      className="text-base font-semibold text-[--text-primary] transition hover:text-[--green]"
                     >
                       {process.name}
                     </Link>
-                    <p className="text-sm leading-6 text-slate-600">
+                    <p className="text-sm leading-6 text-[--text-secondary]">
                       {process.description ?? messages.app.processesModule.noDescription}
                     </p>
                   </div>

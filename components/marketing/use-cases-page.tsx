@@ -21,7 +21,7 @@ const useCases = [
       "Repartir des irritants et cadrer les usages IA utiles.",
     expectedValue: "Priorites plus claires et execution mieux suivie.",
     moveToAiRole: "Aide a choisir les processus a plus fort impact.",
-    bluePilotAiRole: "Pilote portefeuille, workflows, actions et valeur."
+    platformRole: "Pilote portefeuille, workflows, actions et valeur."
   },
   {
     title: "Gouvernance de portefeuille IA",
@@ -32,7 +32,7 @@ const useCases = [
       "Relier chaque opportunite a un processus, un owner, un statut et une logique de valeur.",
     expectedValue: "Arbitrages plus solides, execution plus disciplinee.",
     moveToAiRole: "Pose la methode commune de priorisation.",
-    bluePilotAiRole: "Fait vivre le portefeuille dans l'operationnel."
+    platformRole: "Fait vivre le portefeuille dans l'operationnel."
   }
 ];
 
@@ -81,7 +81,7 @@ export function UseCasesPage({ content }: UseCasesPageProps) {
                   </div>
                   <div className="rounded-3xl border border-slate-200 bg-slate-950 p-5 text-white">
                     <p className="text-sm font-semibold text-slate-100">Role de la plateforme</p>
-                    <p className="mt-2 text-sm leading-7 text-slate-200">{item.bluePilotAiRole}</p>
+                    <p className="mt-2 text-sm leading-7 text-slate-200">{item.platformRole}</p>
                   </div>
                 </div>
               </CardContent>

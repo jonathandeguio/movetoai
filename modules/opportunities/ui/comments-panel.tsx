@@ -37,34 +37,34 @@ export function CommentsPanel({
       </CardHeader>
       <CardContent className="space-y-4 pt-0">
         {comments.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-primary/20 bg-primary/5 p-5">
+          <div className="rounded-2xl border border-dashed border-[--green-border] bg-[--green-dim] p-5">
             <div className="flex items-start gap-3">
-              <span className="rounded-2xl bg-white p-2 text-primary shadow-soft-sm">
+              <span className="rounded-2xl bg-[--bg-card] p-2 text-[--green] shadow-soft-sm">
                 <MessageSquareMore className="h-4 w-4" />
               </span>
               <div className="space-y-2">
-                <p className="text-sm font-semibold text-slate-950">{emptyTitle}</p>
-                <p className="text-sm leading-6 text-slate-600">{emptyDescription}</p>
+                <p className="text-sm font-semibold text-[--text-primary]">{emptyTitle}</p>
+                <p className="text-sm leading-6 text-[--text-secondary]">{emptyDescription}</p>
               </div>
             </div>
           </div>
         ) : (
           comments.map((comment) => (
-            <div key={comment.id} className="rounded-2xl border border-border/80 p-4">
+            <div key={comment.id} className="rounded-2xl border border-[--border] p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-slate-950">
+                  <p className="text-sm font-semibold text-[--text-primary]">
                     {comment.author.name ?? "-"}
                   </p>
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                  <p className="text-xs uppercase tracking-[0.18em] text-[--text-muted]">
                     {comment.author.jobTitle ?? ""}
                   </p>
                 </div>
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-[--text-muted]">
                   {formatDate(locale, comment.createdAt)}
                 </p>
               </div>
-              <p className="mt-3 text-sm leading-7 text-slate-600">{comment.body}</p>
+              <p className="mt-3 text-sm leading-7 text-[--text-secondary]">{comment.body}</p>
             </div>
           ))
         )}

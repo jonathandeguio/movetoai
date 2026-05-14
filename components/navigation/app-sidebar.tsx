@@ -4,44 +4,91 @@ import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { Logo } from "@/components/brand/logo";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { useLocaleContext } from "@/components/providers/locale-provider";
-import { appNavigation } from "@/lib/navigation";
+import { appNavigation, type AppNavKey } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 type AppSidebarProps = {
   workspaceName: string;
   planName: string;
+  visibleNavKeys?: AppNavKey[];
 };
 
-export function AppSidebar({ workspaceName, planName }: AppSidebarProps) {
+export function AppSidebar({ workspaceName, planName, visibleNavKeys }: AppSidebarProps) {
   const pathname = usePathname();
   const { messages } = useLocaleContext();
 
+  const visibleNav = visibleNavKeys
+    ? appNavigation.filter((item) => visibleNavKeys.includes(item.key))
+    : appNavigation;
+
   return (
-    <aside className="hidden w-80 shrink-0 border-r border-border/80 bg-white/95 px-6 py-8 backdrop-blur lg:flex lg:flex-col">
-      <div className="space-y-8">
-        <Logo href="/app" />
-        <div className="rounded-2xl border border-primary/10 bg-primary/5 p-5">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-primary-deep">
-              {messages.common.labels.multilingual}
-            </p>
-            <Badge variant="default">{planName}</Badge>
-          </div>
-          <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
-            {workspaceName}
-          </p>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            EN / FR / ES
-          </p>
-        </div>
+    <aside
+      data-tour="sidebar"
+      className="hidden w-[240px] shrink-0 lg:flex lg:flex-col"
+      style={{
+        background:   "var(--bg-secondary)",
+        borderRight:  "1px solid var(--border-subtle)",
+        padding:      "1.5rem 1rem",
+      }}
+    >
+      {/* Logo */}
+      <div style={{ marginBottom: "1.5rem", padding: "0 0.5rem" }}>
+        <BrandLogo href="/app" size="sm" variant="dark" animated withWordmark />
       </div>
 
-      <nav className="mt-10 space-y-2">
-        {appNavigation.map((item) => {
+      {/* Workspace pill */}
+      <div
+        style={{
+          borderRadius:  "var(--r-lg)",
+          border:        "1px solid var(--green-border)",
+          background:    "var(--green-dim)",
+          padding:       "0.75rem 1rem",
+          marginBottom:  "1.5rem",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.25rem" }}>
+          <span
+            style={{
+              fontSize:      "10px",
+              fontWeight:    600,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color:         "var(--green)",
+            }}
+          >
+            {messages.common.labels.multilingual}
+          </span>
+          <span
+            style={{
+              fontSize:   "10px",
+              fontWeight: 500,
+              padding:    "2px 8px",
+              borderRadius: "var(--r-pill)",
+              background:  "var(--green-dim)",
+              border:      "1px solid var(--green-border)",
+              color:       "var(--green)",
+            }}
+          >
+            {planName}
+          </span>
+        </div>
+        <p
+          style={{
+            fontSize:    "15px",
+            fontWeight:  600,
+            color:       "var(--text-primary)",
+            lineHeight:  1.3,
+          }}
+        >
+          {workspaceName}
+        </p>
+      </div>
+
+      {/* Nav */}
+      <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: "2px" }}>
+        {visibleNav.map((item) => {
           const Icon = item.icon;
           const isActive =
             item.href === "/app"
@@ -52,46 +99,54 @@ export function AppSidebar({ workspaceName, planName }: AppSidebarProps) {
             <Link
               key={item.key}
               href={item.href as Route}
+              data-tour={`nav-${item.key}`}
               className={cn(
-                "group flex items-start gap-3 rounded-2xl border px-4 py-3 transition",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-150",
                 isActive
-                  ? "border-primary/15 bg-primary/5"
-                  : "border-transparent hover:border-border hover:bg-slate-50"
+                  ? "bg-[--green-dim] text-[--green] border-r-2 border-[--green]"
+                  : "text-[--text-secondary] hover:bg-[--bg-hover] hover:text-[--text-primary]"
               )}
             >
-              <span
-                className={cn(
-                  "mt-0.5 rounded-xl p-2 transition",
-                  isActive
-                    ? "bg-primary text-white shadow-glow"
-                    : "bg-slate-100 text-slate-600 group-hover:bg-primary/10 group-hover:text-primary-deep"
-                )}
-              >
-                <Icon className="h-4 w-4" />
-              </span>
-              <span className="space-y-1">
-                <span className="block font-medium text-slate-950">
-                  {messages.app.nav[item.key].title}
-                </span>
-                <span className="block text-sm leading-5 text-slate-500">
-                  {messages.app.nav[item.key].description}
-                </span>
+              <Icon className="h-4 w-4 shrink-0" />
+              <span className="font-medium">
+                {messages.app.nav[item.key].title}
               </span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-auto rounded-2xl border border-border/80 bg-slate-50 p-5">
-        <p className="text-sm font-semibold text-slate-950">
+      {/* Upgrade hint */}
+      <div
+        style={{
+          marginTop:    "auto",
+          paddingTop:   "1rem",
+          borderTop:    "1px solid var(--border-subtle)",
+        }}
+      >
+        <p style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "0.5rem" }}>
           {messages.common.labels.featureGate}
         </p>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
+        <p style={{ fontSize: "11px", color: "var(--text-muted)", lineHeight: 1.5, marginBottom: "0.75rem" }}>
           {messages.common.featureGating.upgradeHint}
         </p>
-        <Button className="mt-4 w-full" asChild>
-          <Link href="/pricing">{messages.common.ctas.comparePlans}</Link>
-        </Button>
+        <Link
+          href={"/pricing" as Route}
+          style={{
+            display:      "block",
+            textAlign:    "center",
+            fontSize:     "12px",
+            fontWeight:   500,
+            padding:      "6px 12px",
+            borderRadius: "var(--r-pill)",
+            border:       "1px solid var(--green-border)",
+            background:   "var(--green-dim)",
+            color:        "var(--green)",
+            transition:   "var(--t-fast)",
+          }}
+        >
+          {messages.common.ctas.comparePlans}
+        </Link>
       </div>
     </aside>
   );

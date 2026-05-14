@@ -1,13 +1,13 @@
 services:
   mysql:
     image: mysql:8.4
-    container_name: bluepilot-mysql
+    container_name: movetoai-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: bluepilot_ai
-      MYSQL_USER: bluepilot
-      MYSQL_PASSWORD: bluepilot
+      MYSQL_DATABASE: movetoai
+      MYSQL_USER: movetoai
+      MYSQL_PASSWORD: movetoai
     ports:
       - "3306:3306"
     volumes:
@@ -22,7 +22,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: bluepilot-app
+    container_name: movetoai-app
     restart: unless-stopped
     depends_on:
       mysql:
@@ -30,7 +30,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: mysql://bluepilot:bluepilot@mysql:3306/bluepilot_ai
+      DATABASE_URL: mysql://movetoai:movetoai@mysql:3306/movetoai
       AUTH_SECRET: ${AUTH_SECRET:-replace-with-a-long-random-secret}
       AUTH_URL: ${AUTH_URL:-http://localhost:3000}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}

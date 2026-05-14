@@ -1,41 +1,96 @@
+import { Suspense } from "react";
 import Link from "next/link";
 
-import { AuthHeader } from "@/components/auth/auth-header";
-import { LoginForm } from "@/components/auth/login-form";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { getAuthMessages } from "@/lib/i18n/auth-messages";
-import { getRequestLocale } from "@/lib/i18n/server";
+import { LoginForm }   from "@/components/auth/login-form";
+import { LogoutToast } from "@/components/auth/LogoutToast";
+import { getAuthMessages }    from "@/lib/i18n/auth-messages";
+import { getRequestLocale }   from "@/lib/i18n/server";
 
 export default async function LoginPage() {
-  const locale = await getRequestLocale();
+  const locale   = await getRequestLocale();
   const messages = getAuthMessages(locale);
 
   return (
-    <main className="min-h-screen">
-      <AuthHeader locale={locale} messages={messages} />
-      <section className="page-shell grid gap-10 py-20 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-        <div className="space-y-5">
-          <Badge>{messages.auth.login.badge}</Badge>
-          <h1 className="text-5xl font-semibold tracking-tight text-slate-950 text-balance">
+    <main
+      style={{
+        minHeight:       "100vh",
+        background:      "var(--bg-primary)",
+        display:         "flex",
+        alignItems:      "center",
+        justifyContent:  "center",
+        padding:         "2rem 1rem",
+      }}
+    >
+      <Suspense>
+        <LogoutToast />
+      </Suspense>
+
+      <div
+        style={{
+          width:        "100%",
+          maxWidth:     "420px",
+        }}
+      >
+        {/* Logo */}
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <span
+            style={{
+              fontFamily:    "var(--font-display)",
+              fontSize:      "24px",
+              fontWeight:    800,
+              color:         "#fff",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            move<span style={{ color: "var(--green)" }}>.</span>ai
+          </span>
+        </div>
+
+        {/* Card */}
+        <div
+          style={{
+            background:   "var(--bg-secondary)",
+            border:       "1px solid var(--border)",
+            borderRadius: "var(--r-xl)",
+            padding:      "2rem",
+          }}
+        >
+          <h1
+            style={{
+              fontFamily:    "var(--font-display)",
+              fontSize:      "22px",
+              fontWeight:    700,
+              letterSpacing: "-0.02em",
+              color:         "var(--text-primary)",
+              marginBottom:  "0.25rem",
+            }}
+          >
             {messages.auth.login.title}
           </h1>
-          <p className="max-w-2xl text-lg leading-8 text-slate-600">
+          <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "1.75rem" }}>
             {messages.auth.login.subtitle}
           </p>
+
+          <LoginForm messages={messages} />
+
+          <p
+            style={{
+              marginTop:  "1.25rem",
+              textAlign:  "center",
+              fontSize:   "12px",
+              color:      "var(--text-muted)",
+            }}
+          >
+            {messages.auth.login.footer}{" "}
+            <Link
+              href="/signup"
+              style={{ color: "var(--green)", fontWeight: 500 }}
+            >
+              {messages.common.ctas.startFree}
+            </Link>
+          </p>
         </div>
-        <Card className="border-primary/10 shadow-soft">
-          <CardContent className="p-8">
-            <LoginForm messages={messages} />
-            <p className="mt-6 text-center text-sm text-slate-500">
-              {messages.auth.login.footer}{" "}
-              <Link href="/signup" className="font-medium text-primary hover:text-primary-hover">
-                {messages.common.ctas.startFree}
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
-      </section>
+      </div>
     </main>
   );
 }
