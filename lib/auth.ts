@@ -56,10 +56,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        // Verify Cloudflare Turnstile token
-        const turnstileOk = await verifyTurnstileToken(parsed.data.turnstileToken, ip);
-        if (!turnstileOk) {
-          return null;
+        // Verify Cloudflare Turnstile token only when a site key is configured
+        // (empty NEXT_PUBLIC_TURNSTILE_SITE_KEY means Turnstile is disabled for self-hosted)
+        const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+        if (siteKey) {
+          const turnstileOk = await verifyTurnstileToken(parsed.data.turnstileToken, ip);
+          if (!turnstileOk) {
+            return null;
+          }
         }
 
         const email = parsed.data.email.trim().toLowerCase();
