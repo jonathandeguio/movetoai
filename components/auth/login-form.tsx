@@ -22,7 +22,7 @@ type LoginFormProps = {
   messages: AuthMessages;
 };
 
-const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
+const SITE_KEY = ""; // Disabled for self-hosted
 const MIN_SUBMIT_MS = 1500; // minimum time before submission (bot detection)
 
 export function LoginForm({ messages }: LoginFormProps) {
