@@ -56,11 +56,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        // Verify Cloudflare Turnstile token (disabled in self-hosted mode)
-        // const turnstileOk = await verifyTurnstileToken(parsed.data.turnstileToken, ip);
-        // if (!turnstileOk) {
-        //   return null;
-        // }
+        // Verify Cloudflare Turnstile token
+        const turnstileOk = await verifyTurnstileToken(parsed.data.turnstileToken, ip);
+        if (!turnstileOk) {
+          return null;
+        }
 
         const email = parsed.data.email.trim().toLowerCase();
 
