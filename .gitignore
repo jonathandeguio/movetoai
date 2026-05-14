@@ -10,6 +10,8 @@ npm-debug.log*
 .env.production.local
 .env.test.local
 .env.test
+.env.*
+.env.backup
 tsconfig.tsbuildinfo
 .DS_Store
 
