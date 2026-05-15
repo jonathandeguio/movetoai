@@ -16,19 +16,20 @@ export default async function PortfolioPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-[--green-border] bg-[--bg-card] p-8 shadow-soft-sm">
-        <div className="space-y-4">
+      <section className="relative rounded-3xl border border-[--green-border] bg-[--bg-card] px-8 pt-[1cm] pb-6 shadow-soft-sm">
+        <div className="absolute -top-px left-[calc(2rem-0.5cm)]">
           <Badge>{messages.app.nav.portfolio.title}</Badge>
-          <h2 className="max-w-4xl text-4xl font-semibold tracking-tight text-[--text-primary] text-balance">
+        </div>
+        <div className="flex items-center gap-8 -mt-[1cm]">
+          <h2 className="shrink-0 translate-x-[2cm] text-4xl font-semibold tracking-tight text-[--text-primary]">
             {messages.app.portfolioModule.title}
           </h2>
-          <p className="max-w-3xl text-base leading-8 text-[--text-secondary]">
+          <p className="translate-x-[2.5cm] translate-y-[0.3cm] text-base leading-8 text-[--text-secondary]">
             {messages.app.portfolioModule.description}
           </p>
         </div>
+        <SummaryCards metrics={summaryMetrics} inline />
       </section>
-
-      <SummaryCards metrics={summaryMetrics} />
 
       <PortfolioTable
         locale={locale}

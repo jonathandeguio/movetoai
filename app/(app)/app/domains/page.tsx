@@ -71,35 +71,44 @@ export default async function DomainsPage({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-[--green-border] bg-[--bg-card] p-8 shadow-soft-sm">
-        <div className="space-y-4">
+      <section className="relative rounded-3xl border border-[--green-border] bg-[--bg-card] px-8 pt-[1cm] pb-6 shadow-soft-sm">
+        <div className="absolute -top-px left-[calc(2rem-0.5cm)]">
           <Badge>{messages.app.nav.domains.title}</Badge>
-          <h2 className="max-w-4xl text-4xl font-semibold tracking-tight text-[--text-primary] text-balance">
+        </div>
+        <div className="flex items-center gap-8 -mt-[1cm]">
+          <h2 className="shrink-0 translate-x-[2cm] text-4xl font-semibold tracking-tight text-[--text-primary]">
             {messages.app.domainsModule.title}
           </h2>
-          <p className="max-w-3xl text-base leading-8 text-[--text-secondary]">
+          <p className="translate-x-[2.5cm] translate-y-[0.3cm] text-base leading-8 text-[--text-secondary]">
             {messages.app.domainsModule.description}
           </p>
         </div>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          label={messages.app.domainsModule.metrics.domains}
-          value={data.metrics.domains.toString()}
-        />
-        <MetricCard
-          label={messages.app.domainsModule.metrics.capabilities}
-          value={data.metrics.capabilities.toString()}
-        />
-        <MetricCard
-          label={messages.app.domainsModule.metrics.processes}
-          value={data.metrics.processes.toString()}
-        />
-        <MetricCard
-          label={messages.app.domainsModule.metrics.opportunities}
-          value={data.metrics.opportunities.toString()}
-        />
+        <div className="mt-4 flex flex-wrap gap-4 pl-[1.2cm]">
+          <MetricCard
+            label={messages.app.domainsModule.metrics.domains}
+            value={data.metrics.domains.toString()}
+            className="h-[2cm] w-[8cm]"
+            contentClassName="flex h-full flex-col justify-center gap-1 px-5 py-0"
+          />
+          <MetricCard
+            label={messages.app.domainsModule.metrics.capabilities}
+            value={data.metrics.capabilities.toString()}
+            className="h-[2cm] w-[8cm]"
+            contentClassName="flex h-full flex-col justify-center gap-1 px-5 py-0"
+          />
+          <MetricCard
+            label={messages.app.domainsModule.metrics.processes}
+            value={data.metrics.processes.toString()}
+            className="h-[2cm] w-[8cm]"
+            contentClassName="flex h-full flex-col justify-center gap-1 px-5 py-0"
+          />
+          <MetricCard
+            label={messages.app.domainsModule.metrics.opportunities}
+            value={data.metrics.opportunities.toString()}
+            className="h-[2cm] w-[8cm]"
+            contentClassName="flex h-full flex-col justify-center gap-1 px-5 py-0"
+          />
+        </div>
       </section>
 
       <BusinessStructureFilterPanel
