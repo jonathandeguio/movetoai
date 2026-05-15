@@ -221,6 +221,25 @@ body {
   }
 }
 
+/* ─── Native <select> — force dark rendering so options are readable ────── */
+/* Browser renders <option> with OS-level styling; CSS variables don't apply  */
+/* inside the dropdown. Setting color-scheme + explicit colours fixes this.   */
+
+select {
+  color-scheme: dark;
+}
+
+select option {
+  background-color: #0d1117;   /* slightly lighter than --bg-primary */
+  color: #c8cad8;              /* --text-primary */
+}
+
+select option:checked,
+select option:hover {
+  background-color: rgba(110, 231, 183, 0.12);   /* --green-dim */
+  color: #6ee7b7;                                 /* --green */
+}
+
 /* ─── No pure white text — remap text-white to the light-grey token ─────── */
 /* Tailwind's text-white (#fff) is overridden everywhere so all copy stays  */
 /* on the --text-primary grey (#c8cad8). On coloured buttons the difference */
