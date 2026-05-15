@@ -478,7 +478,7 @@ export const frMessages = {
     },
     overview: {
       eyebrow: "Shell multilingue",
-      title: "Identifiez les opportunites IA plus vite que votre modele actuel",
+      title: "Identifiez les opportunités IA pour améliorer l'efficacité de vos processus",
       subtitle:
         "Ce shell MVP est concu pour etre premium, credible et pret pour une adoption rapide.",
       cards: [
