@@ -274,6 +274,36 @@ const USER_DEFINITIONS = [
     jobTitle: "VP Finance Transformation",
     userFunction: "transformation_manager",
     preferences: { businessUnit: "financial-services" }
+  },
+  {
+    email: "emma.collins@movetoai.demo",
+    name: "Emma Collins",
+    roleCode: "TRANSFORMATION_MANAGER",
+    isPlatformAdmin: false,
+    locale: "EN",
+    jobTitle: "Chief Transformation Officer",
+    userFunction: "transformation_manager",
+    preferences: { homePage: "governance" }
+  },
+  {
+    email: "diego.herrera@movetoai.demo",
+    name: "Diego Herrera",
+    roleCode: "TRANSFORMATION_MANAGER",
+    isPlatformAdmin: false,
+    locale: "EN",
+    jobTitle: "AI Transformation Lead",
+    userFunction: "transformation_manager",
+    preferences: { homePage: "opportunities" }
+  },
+  {
+    email: "liam.chen@movetoai.demo",
+    name: "Liam Chen",
+    roleCode: "TRANSFORMATION_MANAGER",
+    isPlatformAdmin: false,
+    locale: "EN",
+    jobTitle: "Operations Business Owner",
+    userFunction: "transformation_manager",
+    preferences: { businessUnit: "operations-retail-manufacturing" }
   }
 ];
 
