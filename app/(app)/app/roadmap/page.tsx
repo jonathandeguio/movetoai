@@ -2,6 +2,8 @@ import type { Route } from "next";
 import Link from "next/link";
 import { CalendarRange, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
 
+import { AriaBanner } from "@/components/aria/AriaBanner";
+
 import { requireAnyPermission } from "@/server/permissions";
 import { initiativeRepo }        from "@/lib/repositories/initiative.repo";
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +58,7 @@ export default async function RoadmapPage() {
 
   return (
     <div className="space-y-6">
+      <AriaBanner />
       {/* Header */}
       <section className="rounded-3xl border border-[--green-border] bg-[--bg-card] p-8 shadow-soft-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

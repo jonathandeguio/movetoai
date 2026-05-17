@@ -1,6 +1,8 @@
 import { CheckSquare, Workflow, Bell, MessageSquare, ArrowRight, Clock } from "lucide-react";
 import Link from "next/link";
 
+import { AriaBanner } from "@/components/aria/AriaBanner";
+
 import { getCurrentWorkspaceContext } from "@/lib/current-workspace";
 import { processRepo }                from "@/lib/repositories/process.repo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +30,7 @@ export default async function MemberDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <AriaBanner />
       {/* Welcome */}
       <div className="rounded-2xl border border-[--border] bg-[--bg-card] px-6 py-5 shadow-sm">
         <h1 className="text-xl font-semibold text-[--text-primary]">

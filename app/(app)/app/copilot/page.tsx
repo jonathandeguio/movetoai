@@ -1,5 +1,6 @@
 import { requireAnyPermission } from "@/server/permissions";
 import { CopilotChat } from "@/components/copilot/CopilotChat";
+import { AriaBanner }  from "@/components/aria/AriaBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +9,7 @@ export default async function CopilotPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] gap-4">
+      <AriaBanner />
       {/* Header */}
       <div
         style={{

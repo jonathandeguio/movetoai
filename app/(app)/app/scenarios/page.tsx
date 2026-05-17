@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { Plus, BarChart3, TrendingUp, Layers } from "lucide-react";
+import { AriaBanner } from "@/components/aria/AriaBanner";
 import type { Route } from "next";
 import Link from "next/link";
 
@@ -34,6 +35,7 @@ export default async function ScenariosPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+      <AriaBanner />
       {/* Header */}
       <div
         style={{

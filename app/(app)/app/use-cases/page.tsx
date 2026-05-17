@@ -3,6 +3,8 @@ import { Lightbulb, Plus, Search, Filter } from "lucide-react";
 import Link from "next/link";
 import type { Route } from "next";
 
+import { AriaBanner } from "@/components/aria/AriaBanner";
+
 import { getCurrentWorkspaceContext } from "@/server/auth";
 import { useCaseRepo }                from "@/lib/repositories/use-case.repo";
 import { canReadUseCases }            from "@/lib/permissions/opportunities";
@@ -142,6 +144,7 @@ export default async function UseCasesPage({ searchParams }: { searchParams: Sea
 
   return (
     <div className="space-y-6">
+      <AriaBanner />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

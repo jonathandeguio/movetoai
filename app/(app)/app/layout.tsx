@@ -7,8 +7,9 @@ import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { AppTopbar } from "@/components/navigation/app-topbar";
 import { GettingStarted } from "@/components/guide/GettingStarted";
 import { NavigationProgress } from "@/components/navigation/NavigationProgress";
-import { AriaButton } from "@/components/aria/AriaButton";
-import { AriaPanel }  from "@/components/aria/AriaPanel";
+import { AriaButton }       from "@/components/aria/AriaButton";
+import { AriaPanel }        from "@/components/aria/AriaPanel";
+import { AriaNotification } from "@/components/aria/AriaNotification";
 import { getCurrentWorkspaceContext } from "@/lib/current-workspace";
 import { getMessages } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
@@ -154,6 +155,7 @@ export default async function ProductLayout({
       {/* Aria — présente sur toutes les pages authentifiées */}
       <AriaButton />
       <AriaPanel />
+      <AriaNotification />
     </div>
   );
 }

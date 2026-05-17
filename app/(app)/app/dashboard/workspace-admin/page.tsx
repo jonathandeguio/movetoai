@@ -1,6 +1,8 @@
 import { Users, Building2, Zap, TrendingUp, ShieldCheck, Settings } from "lucide-react";
 import Link from "next/link";
 
+import { AriaBanner } from "@/components/aria/AriaBanner";
+
 import { getWorkspaceAdminDashboardData } from "@/modules/dashboard/workspace-admin/server/get-dashboard-data";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +30,7 @@ export default async function WorkspaceAdminDashboardPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+      <AriaBanner />
       {/* Header */}
       <div>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>

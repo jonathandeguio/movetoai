@@ -1,5 +1,6 @@
 import type { Route } from "next";
 
+import { AriaBanner }  from "@/components/aria/AriaBanner";
 import { getMessages } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { getApprovalQueue } from "@/modules/governance/server/get-approval-queue";
@@ -27,6 +28,7 @@ export default async function GovernancePage() {
 
   return (
     <div className="space-y-6">
+      <AriaBanner />
       <section className="rounded-3xl border border-[--green-border] bg-[--bg-card] p-8 shadow-soft-sm">
         <div className="space-y-4">
           <Badge>{messages.app.nav.governance.title}</Badge>

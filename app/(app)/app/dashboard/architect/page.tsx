@@ -1,6 +1,8 @@
 import { Server, GitBranch, Shield, Layers, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
+import { AriaBanner } from "@/components/aria/AriaBanner";
+
 import { getArchitectDashboardData } from "@/modules/dashboard/architect/server/get-dashboard-data";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +38,7 @@ export default async function EnterpriseArchitectDashboardPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+      <AriaBanner />
       {/* Header */}
       <div>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>
