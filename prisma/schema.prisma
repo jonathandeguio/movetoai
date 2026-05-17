@@ -336,6 +336,7 @@ model Workspace {
   aiMaturity           String?  // "debutant" | "experimentateur" | "avance" | "leader"
   priorities           Json?    // string[] — selected strategic priorities
   horizon              String?  // "6_months" | "1_year" | "3_years"
+  onboardingCompleted  Boolean  @default(false)
 
   tenant           Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   memberships      Membership[]
@@ -2282,6 +2283,16 @@ model CertificationCatalog {
   sectors          Json?    // string[] — sector codes where this is relevant
   sizeMin          Json?    // string[] — minimum company sizes: tpe|pme|eti|ge
   isActive         Boolean  @default(true)
+  // Extended fields (Sprint 5 — Onboarding v2 + Process linking)
+  linkedProcessCodes    Json    @default("[]")  // string[] of SAP/LeanIX L3 codes
+  estimatedCostMin      Int?
+  estimatedCostMax      Int?
+  implementationMin     Int?
+  implementationMax     Int?
+  prerequisites         Json    @default("[]")  // string[] cert codes
+  compatibleWith        Json    @default("[]")  // string[] cert codes
+  aiAutomationPotential String?
+  mandatorySectors      Json    @default("[]")  // new French sector codes
   createdAt        DateTime @default(now())
 
   workspaceCertifications WorkspaceCertification[]

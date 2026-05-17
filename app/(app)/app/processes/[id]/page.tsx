@@ -22,6 +22,8 @@ import { ProcessKpiPanel } from "@/components/processes/ProcessKpiPanel";
 import { ProcessDepsPanel } from "@/components/processes/ProcessDepsPanel";
 import { ProcessHistoryPanel } from "@/components/processes/ProcessHistoryPanel";
 import { GenerateBpmnButton } from "@/components/processes/GenerateBpmnButton";
+import { getLinkedCertsForProcess } from "@/lib/certifications/process-linker";
+import { prisma } from "@/lib/prisma";
 
 function getSeverityVariant(severity: string) {
   if (severity === "CRITICAL" || severity === "HIGH") {
@@ -50,6 +52,24 @@ export default async function ProcessDetailPage({
   if (!process) {
     notFound();
   }
+
+  // Certifications liées au processus via linkedProcessCodes
+  const linkedCerts = process.catalogCode ? getLinkedCertsForProcess(process.catalogCode) : [];
+
+  // Fetch workspace certification statuses for those certs
+  const workspaceCertStatuses = linkedCerts.length > 0
+    ? await prisma.workspaceCertification.findMany({
+        where: {
+          workspaceId: workspace!.id,
+          catalog: { code: { in: linkedCerts.map((c) => c.code) } },
+        },
+        include: { catalog: { select: { code: true } } },
+      })
+    : [];
+
+  const certStatusMap = new Map(
+    workspaceCertStatuses.map((wc) => [wc.catalog.code, wc.status])
+  );
 
   const assistant = suggestOpportunitiesFromProcess({
     processName: process.name,
@@ -318,6 +338,86 @@ export default async function ProcessDetailPage({
           </div>
         </div>
       </DetailSection>
+
+      {/* ── Certifications liées ──────────────────────────────────────────── */}
+      {linkedCerts.length > 0 && (
+        <DetailSection
+          title="Certifications liées"
+          description="Certifications dont ce processus fait partie du périmètre d'audit."
+        >
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {linkedCerts.map((cert) => {
+              const wsStatus = certStatusMap.get(cert.code);
+              const isMandatory = cert.mandatorySectors.length > 0;
+
+              const statusColor = wsStatus === "obtained"    ? "var(--green)"
+                               : wsStatus === "in_progress"  ? "var(--blue)"
+                               : wsStatus === "planned"      ? "var(--purple)"
+                               : wsStatus === "expired"      ? "var(--red)"
+                               : "var(--text-muted)";
+              const statusLabel = wsStatus === "obtained"    ? "Certifié"
+                               : wsStatus === "in_progress"  ? "En cours"
+                               : wsStatus === "planned"      ? "Planifié"
+                               : wsStatus === "expired"      ? "Expirée"
+                               : "Non déclaré";
+              const statusIcon = wsStatus === "obtained" ? "✅"
+                              : wsStatus === "in_progress" ? "🔄"
+                              : wsStatus === "planned" ? "🎯"
+                              : wsStatus === "expired" ? "❌"
+                              : "○";
+
+              return (
+                <div key={cert.code} style={{
+                  padding: "14px 16px", borderRadius: 12,
+                  border: "1px solid var(--border)", background: "var(--bg-card)",
+                }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 4 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
+                          {cert.shortName}
+                        </span>
+                        {isMandatory && (
+                          <span style={{
+                            fontSize: 9, padding: "1px 5px", borderRadius: 999,
+                            background: "var(--red-dim)", color: "var(--red)", fontWeight: 700,
+                          }}>Obligatoire</span>
+                        )}
+                      </div>
+                      <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{cert.family}</span>
+                    </div>
+                    <span style={{ fontSize: 16, flexShrink: 0 }}>{statusIcon}</span>
+                  </div>
+                  <div style={{
+                    marginTop: 10, display: "flex", alignItems: "center",
+                    justifyContent: "space-between", flexWrap: "wrap", gap: 6,
+                  }}>
+                    <span style={{
+                      fontSize: 10, padding: "2px 8px", borderRadius: 999, fontWeight: 600,
+                      background: `color-mix(in srgb, ${statusColor} 12%, transparent)`,
+                      color: statusColor, border: `1px solid ${statusColor}`,
+                    }}>
+                      {statusLabel}
+                    </span>
+                    <span style={{ fontSize: 10, color: "var(--text-muted)" }}>
+                      IA : {cert.aiAutomationPotential}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {linkedCerts.length > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <Link href={"/app/knowledge/certifications" as Route} style={{
+                fontSize: 12, color: "var(--blue)", textDecoration: "none",
+              }}>
+                Gérer mes certifications →
+              </Link>
+            </div>
+          )}
+        </DetailSection>
+      )}
 
       <DetailSection
         title={messages.app.processesModule.painPointsTitle}

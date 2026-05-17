@@ -27,6 +27,8 @@ export async function buildPageContext(
         return await applicationsCtx(workspaceId);
       case "/app/compliance":
         return await complianceCtx(workspaceId);
+      case "/app/knowledge/certifications":
+        return await knowledgeCertificationsCtx(workspaceId);
       case "/app/roadmap":
         return await roadmapCtx(workspaceId);
       default:
@@ -137,6 +139,49 @@ async function complianceCtx(wsId: string): Promise<PageContext> {
     expiring_soon:           expiringSoon,
     expired_count:           expired,
     global_score:            globalScore,
+  };
+}
+
+async function knowledgeCertificationsCtx(wsId: string): Promise<PageContext> {
+  const [total, obtained, expiringSoon, expired] = await Promise.all([
+    prisma.workspaceCertification.count({ where: { workspaceId: wsId } }).catch(() => 0),
+    prisma.workspaceCertification.count({ where: { workspaceId: wsId, status: "obtained" } }).catch(() => 0),
+    prisma.workspaceCertification
+      .count({
+        where: {
+          workspaceId: wsId,
+          expiryDate:  { lte: new Date(Date.now() + 90 * 86_400_000) },
+          status:      { not: "expired" },
+        },
+      })
+      .catch(() => 0),
+    prisma.workspaceCertification.count({ where: { workspaceId: wsId, status: "expired" } }).catch(() => 0),
+  ]);
+
+  // Simple compliance score
+  const score = total > 0 ? Math.max(0, Math.round(((obtained - expired * 1.5 - expiringSoon * 0.5) / total) * 100)) : 0;
+
+  // Count missing mandatory using workspace sector
+  const ws = await prisma.workspace.findUnique({ where: { id: wsId }, select: { sectorCode: true } });
+  const sectorCode = ws?.sectorCode ?? "";
+  const { CERT_CATALOGUE_EXTENDED } = await import("@/lib/seed/certification-catalogue");
+  const mandatoryForSector = CERT_CATALOGUE_EXTENDED.filter((e) => e.mandatorySectors.includes(sectorCode));
+
+  const workspaceCertCodes = await prisma.workspaceCertification.findMany({
+    where: { workspaceId: wsId, status: { in: ["obtained", "in_progress"] } },
+    include: { catalog: { select: { code: true } } },
+  }).catch(() => [] as Array<{ catalog: { code: string } }>);
+
+  const obtainedCodes = new Set(workspaceCertCodes.map((wc) => wc.catalog.code));
+  const missingMandatory = mandatoryForSector.filter((e) => !obtainedCodes.has(e.code)).length;
+
+  return {
+    total_certs:             total,
+    obtained_count:          obtained,
+    expiring_soon:           expiringSoon,
+    expired_count:           expired,
+    missing_mandatory_certs: missingMandatory,
+    compliance_score:        Math.min(100, Math.max(0, score)),
   };
 }
 

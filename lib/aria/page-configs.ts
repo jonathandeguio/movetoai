@@ -281,6 +281,119 @@ export const ARIA_PAGE_CONFIGS: Record<string, AriaPageConfig> = {
     ],
   },
 
+  // ── Onboarding — Secteur ────────────────────────────────────────────────────
+  "/app/onboarding/sector": {
+    page_id:        "onboarding_sector",
+    banner_trigger: "always",
+    banner_message: () =>
+      "Sélectionnez votre secteur d'activité et la taille de votre entreprise. Je vais personnaliser votre espace avec les certifications, processus et opportunités IA les plus pertinents.",
+    suggestions: () => [],
+    proactive_checks: [],
+    help_topics: [
+      { label: "Pourquoi renseigner mon secteur ?",      query: "utilité secteur onboarding" },
+      { label: "Puis-je le modifier plus tard ?",        query: "modifier secteur workspace" },
+    ],
+  },
+
+  // ── Onboarding — Certifications ─────────────────────────────────────────────
+  "/app/onboarding/certifications": {
+    page_id:        "onboarding_certifications",
+    banner_trigger: "always",
+    banner_message: (ctx) => {
+      if (num(ctx, "mandatory_count") > 0) {
+        return `⚠️ ${ctx.mandatory_count} certification(s) obligatoire(s) identifiées pour votre secteur. Commencez par celles-ci pour éviter des risques réglementaires.`;
+      }
+      return "Sélectionnez les certifications que vous avez déjà obtenues, en cours ou que vous visez. Cela me permet de construire votre tableau de conformité.";
+    },
+    suggestions: () => [],
+    proactive_checks: [],
+    help_topics: [
+      { label: "Quelle certification obtenir en premier ?", query: "priorisation certifications secteur" },
+      { label: "Qu'est-ce qu'une certification obligatoire ?", query: "certification obligatoire réglementaire" },
+    ],
+  },
+
+  // ── Onboarding — Processus ───────────────────────────────────────────────────
+  "/app/onboarding/processes": {
+    page_id:        "onboarding_processes",
+    banner_trigger: "always",
+    banner_message: () =>
+      "Ces processus sont directement liés à vos certifications. En les important, vous démarrez votre cartographie métier et pouvez identifier des opportunités d'automatisation.",
+    suggestions: () => [],
+    proactive_checks: [],
+    help_topics: [
+      { label: "Qu'est-ce qu'un processus SAP/LeanIX ?", query: "processus catalogue SAP LeanIX" },
+      { label: "Puis-je importer d'autres processus ?",   query: "importer processus catalogue" },
+    ],
+  },
+
+  // ── Onboarding — Opportunités ────────────────────────────────────────────────
+  "/app/onboarding/opportunities": {
+    page_id:        "onboarding_opportunities",
+    banner_trigger: "always",
+    banner_message: () =>
+      "Voici des opportunités d'automatisation IA typiques pour votre secteur. Créez celles qui correspondent à votre réalité — vous pourrez les enrichir ensuite.",
+    suggestions: () => [],
+    proactive_checks: [],
+    help_topics: [
+      { label: "Comment qualifier une opportunité ?",  query: "qualifier opportunité IA" },
+      { label: "Quelle est la différence P0/P1/P2 ?",  query: "priorités P0 P1 P2 opportunités" },
+    ],
+  },
+
+  // ── Onboarding — Terminé ─────────────────────────────────────────────────────
+  "/app/onboarding/complete": {
+    page_id:        "onboarding_complete",
+    banner_trigger: "always",
+    banner_message: () =>
+      "🎉 Félicitations ! Votre espace est configuré. Je suis disponible sur toutes les pages pour vous accompagner. Commencez par le tableau de bord pour voir votre score de maturité IA.",
+    suggestions: (ctx) => {
+      const s: AriaSuggestion[] = [];
+      if (!num(ctx, "opportunities_count")) {
+        s.push({ id: "create_first_opp", icon: "💡", title: "Créer votre première opportunité", description: "Décrivez un problème récurrent en langage naturel", action_label: "Commencer →", action_url: "/app/opportunities", priority: "high" });
+      }
+      return s;
+    },
+    proactive_checks: [],
+    help_topics: [
+      { label: "Par où commencer maintenant ?",     query: "première étape après onboarding" },
+      { label: "Comment inviter mon équipe ?",       query: "inviter utilisateurs workspace" },
+    ],
+  },
+
+  // ── Knowledge — Certifications ───────────────────────────────────────────────
+  "/app/knowledge/certifications": {
+    page_id:        "knowledge_certifications",
+    banner_trigger: "always",
+    banner_message: (ctx) => {
+      if (num(ctx, "missing_mandatory_certs") > 0) {
+        return `⚠️ ${ctx.missing_mandatory_certs} certification(s) obligatoire(s) non couvertes. Cliquez sur une certification pour voir les processus concernés et planifier votre audit.`;
+      }
+      if (num(ctx, "expiring_soon") > 0) {
+        return `🔔 ${ctx.expiring_soon} certification(s) expirent bientôt. Planifiez vos audits de renouvellement.`;
+      }
+      if (num(ctx, "compliance_score") >= 80) {
+        return `✅ Excellent score de conformité : ${ctx.compliance_score}%. Continuez à documenter vos processus pour maintenir ce niveau.`;
+      }
+      return "Gérez vos certifications et leur lien avec vos processus métier. Un bon score de conformité renforce votre crédibilité client et partenaires.";
+    },
+    suggestions: (ctx) => num(ctx, "missing_mandatory_certs") > 0 ? [{
+      id:           "add_mandatory",
+      icon:         "🛡️",
+      title:        "Déclarer les certifications obligatoires",
+      description:  "Ajoutez au minimum les certifications réglementaires de votre secteur",
+      action_label: "Configurer →",
+      action_url:   "/app/onboarding/certifications",
+      priority:     "high" as const,
+    }] : [],
+    proactive_checks: [],
+    help_topics: [
+      { label: "Comment lier une certification à un processus ?", query: "lier certification processus" },
+      { label: "Comment calculer le score de conformité ?",       query: "score conformité calcul" },
+      { label: "Comment préparer un audit de renouvellement ?",   query: "préparer audit certification" },
+    ],
+  },
+
   // ── Gouvernance ─────────────────────────────────────────────────────────────
   "/app/governance": {
     page_id:        "governance",
