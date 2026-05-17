@@ -468,6 +468,8 @@ model User {
     ownedCertifications    WorkspaceCertification[] @relation("CertificationOwner")
     ariaSessions           AriaSession[]
     ariaDismissals         AriaDismissal[]
+    processesAssteward     Process[]      @relation("ProcessSteward")
+    processHistories       ProcessHistory[]
   }
 
 model Membership {
@@ -698,7 +700,29 @@ model Process {
   businessUnit    BusinessUnit?              @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
   domain          Domain                     @relation(fields: [domainId], references: [id], onDelete: Cascade)
   capability      Capability?                @relation(fields: [capabilityId], references: [id], onDelete: SetNull)
+  // Catalogue SAP/LeanIX
+  catalogCode     String?   // ex: "HR-ADM-02"
+
+  // Maturity CMMI
+  maturityScore   Int?      @default(0)
+  maturityLevel   String?   // initial|managed|defined|quantitatively_managed|optimizing
+
+  // Gouvernance étendue
+  stewardId       String?
+  sla             String?
+  scope           String?   @db.Text
+  objective       String?   @db.Text
+  tags            Json?
+  docLinks        Json?
+  isCertified     Boolean   @default(false)
+  certificationRef String?
+
+  // Métriques
+  errorRate       Float?    // % d'erreurs
+  cycleDays       Float?    // durée cycle en jours
+
   owner           User?                      @relation("ProcessOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  steward         User?                      @relation("ProcessSteward", fields: [stewardId], references: [id], onDelete: SetNull)
   subProcesses    SubProcess[]
   painPoints      PainPoint[]
   kpis            KPI[]
@@ -708,11 +732,16 @@ model Process {
   focusSelections UserProcessFocusSelection[]
   steps           ProcessStep[]
   diagram         ProcessDiagram?
+  processKpis     ProcessKPI[]
+  dependencies    ProcessDependency[]  @relation("DependencySource")
+  dependents      ProcessDependency[]  @relation("DependencyTarget")
+  history         ProcessHistory[]
 
   @@unique([workspaceId, slug])
   @@index([domainId])
   @@index([capabilityId])
   @@index([ownerId])
+  @@index([catalogCode])
 }
 
 model UserProcessFocusSelection {
@@ -1771,6 +1800,61 @@ model ProcessStep {
   process Process @relation(fields: [processId], references: [id], onDelete: Cascade)
 
   @@index([processId, order])
+}
+
+// ── Process KPIs ──────────────────────────────────────────────────────────────
+
+model ProcessKPI {
+  id            String  @id @default(cuid())
+  processId     String
+  name          String
+  unit          String                    // "heures", "%", "€", "jours", "nombre"
+  currentValue  Float?
+  targetValue   Float?
+  direction     String  @default("down") // "down" = réduire | "up" = augmenter
+  measurement   String?
+  sourceSystem  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  process Process @relation(fields: [processId], references: [id], onDelete: Cascade)
+
+  @@index([processId])
+}
+
+// ── Process Dependencies ───────────────────────────────────────────────────────
+
+model ProcessDependency {
+  id             String @id @default(cuid())
+  sourceId       String  // processus source (dépend de target)
+  targetId       String  // processus déclencheur (prérequis)
+  dependencyType String  @default("upstream") // upstream|downstream|parallel
+  description    String?
+  createdAt      DateTime @default(now())
+
+  source Process @relation("DependencySource", fields: [sourceId], references: [id], onDelete: Cascade)
+  target Process @relation("DependencyTarget", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, targetId])
+  @@index([sourceId])
+  @@index([targetId])
+}
+
+// ── Process History ────────────────────────────────────────────────────────────
+
+model ProcessHistory {
+  id          String   @id @default(cuid())
+  processId   String
+  userId      String
+  action      String   // created|updated|bpmn_generated|bpmn_validated|status_changed|kpi_added|dependency_added|maturity_updated
+  description String?
+  createdAt   DateTime @default(now())
+
+  process Process @relation(fields: [processId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([processId, createdAt])
+  @@index([userId])
 }
 
 // ── Technology ────────────────────────────────────────────────────────────────
