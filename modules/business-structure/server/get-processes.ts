@@ -57,6 +57,9 @@ export async function getProcessList(workspaceId: string, filters: ProcessFilter
             }
           }
         },
+        maturityScore: true,
+        maturityLevel: true,
+        catalogCode: true,
         _count: {
           select: {
             painPoints: true,

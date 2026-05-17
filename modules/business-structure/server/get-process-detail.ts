@@ -11,6 +11,16 @@ export async function getProcessDetail(workspaceId: string, processId: string) {
       id: true,
       name: true,
       description: true,
+      maturityScore: true,
+      maturityLevel: true,
+      catalogCode: true,
+      stewardId: true,
+      steward: { select: { name: true } },
+      sla: true,
+      scope: true,
+      objective: true,
+      isCertified: true,
+      certificationRef: true,
       owner: {
         select: {
           name: true

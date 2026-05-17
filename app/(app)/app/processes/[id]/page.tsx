@@ -16,6 +16,12 @@ import { getRequestLocale } from "@/lib/i18n/server";
 import { suggestOpportunitiesFromProcess } from "@/modules/ai-assistant/server/suggest-opportunities";
 import { AssistantPanel } from "@/modules/ai-assistant/ui/assistant-panel";
 import { getProcessDetail } from "@/modules/business-structure/server/get-process-detail";
+import { MaturityGauge } from "@/components/processes/MaturityGauge";
+import { MaturityBadge } from "@/components/processes/MaturityBadge";
+import { ProcessKpiPanel } from "@/components/processes/ProcessKpiPanel";
+import { ProcessDepsPanel } from "@/components/processes/ProcessDepsPanel";
+import { ProcessHistoryPanel } from "@/components/processes/ProcessHistoryPanel";
+import { GenerateBpmnButton } from "@/components/processes/GenerateBpmnButton";
 
 function getSeverityVariant(severity: string) {
   if (severity === "CRITICAL" || severity === "HIGH") {
@@ -115,12 +121,13 @@ export default async function ProcessDetailPage({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <ProcessEditForm
               processId={process.id}
               initialName={process.name}
               initialDescription={process.description ?? null}
             />
+            <GenerateBpmnButton processId={process.id} />
             <Button asChild>
               <Link href="/app/opportunities">{messages.app.processesModule.actions.openOpportunities}</Link>
             </Button>
@@ -146,6 +153,52 @@ export default async function ProcessDetailPage({
           value={process.opportunities.length.toString()}
         />
       </section>
+
+      <DetailSection title="Maturité du processus" description="Score CMMI adapté — 5 critères de 20 pts chacun.">
+        <div className="flex flex-wrap items-center gap-8">
+          <MaturityGauge score={process.maturityScore ?? 0} size={120} />
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[--text-muted] mb-1">Niveau</p>
+              <MaturityBadge score={process.maturityScore ?? 0} size="md" />
+            </div>
+            {process.isCertified && (
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[--text-muted] mb-1">Certification</p>
+                <p className="text-sm text-[--text-primary]">{process.certificationRef ?? "Certifié"}</p>
+              </div>
+            )}
+            {process.steward && (
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[--text-muted] mb-1">Process Steward</p>
+                <p className="text-sm text-[--text-primary]">{process.steward.name}</p>
+              </div>
+            )}
+            {process.sla && (
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[--text-muted] mb-1">SLA</p>
+                <p className="text-sm text-[--text-primary]">{process.sla}</p>
+              </div>
+            )}
+          </div>
+          {(process.scope ?? process.objective) && (
+            <div className="flex-1 min-w-[220px] space-y-3">
+              {process.scope && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[--text-muted] mb-1">Périmètre</p>
+                  <p className="text-sm leading-6 text-[--text-secondary]">{process.scope}</p>
+                </div>
+              )}
+              {process.objective && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[--text-muted] mb-1">Objectif</p>
+                  <p className="text-sm leading-6 text-[--text-secondary]">{process.objective}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </DetailSection>
 
       <DetailSection
         title={messages.app.processesModule.contextTitle}
@@ -327,6 +380,18 @@ export default async function ProcessDetailPage({
             ))}
           </div>
         )}
+      </DetailSection>
+
+      <DetailSection title="KPIs" description="Indicateurs clés de performance suivis pour ce processus.">
+        <ProcessKpiPanel processId={process.id} canManage={canManage} />
+      </DetailSection>
+
+      <DetailSection title="Dépendances" description="Processus liés en amont et en aval.">
+        <ProcessDepsPanel processId={process.id} canManage={canManage} />
+      </DetailSection>
+
+      <DetailSection title="Historique" description="Les 20 derniers événements liés à ce processus.">
+        <ProcessHistoryPanel processId={process.id} />
       </DetailSection>
 
       <AssistantPanel

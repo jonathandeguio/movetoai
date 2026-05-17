@@ -12,6 +12,8 @@ import { getMessages } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { getProcessList } from "@/modules/business-structure/server/get-processes";
 import { parseProcessFilters } from "@/modules/business-structure/server/parse-process-filters";
+import { MaturityBadge } from "@/components/processes/MaturityBadge";
+import { CatalogImportButton } from "@/components/processes/CatalogImportButton";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -161,8 +163,13 @@ export default async function ProcessesPage({
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>{messages.app.processesModule.title}</CardTitle>
-            <CardDescription>{messages.app.processesModule.detailSubtitle}</CardDescription>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <CardTitle>{messages.app.processesModule.title}</CardTitle>
+                <CardDescription>{messages.app.processesModule.detailSubtitle}</CardDescription>
+              </div>
+              <CatalogImportButton workspaceId={workspace!.id} />
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
@@ -170,6 +177,7 @@ export default async function ProcessesPage({
                 <TableRow>
                   <TableHead>{messages.app.processesModule.table.process}</TableHead>
                   <TableHead>{messages.app.processesModule.table.domain}</TableHead>
+                  <TableHead>Maturité</TableHead>
                   <TableHead>{messages.app.processesModule.table.owner}</TableHead>
                   <TableHead>{messages.app.processesModule.table.businessUnit}</TableHead>
                   <TableHead>{messages.app.processesModule.table.applications}</TableHead>
@@ -201,6 +209,9 @@ export default async function ProcessesPage({
                         </div>
                       </TableCell>
                       <TableCell>{process.domain.name}</TableCell>
+                      <TableCell>
+                        <MaturityBadge score={process.maturityScore ?? 0} size="sm" />
+                      </TableCell>
                       <TableCell>{process.owner?.name ?? messages.app.processesModule.noOwner}</TableCell>
                       <TableCell>
                         {process.businessUnit?.name ?? messages.common.labels.noBusinessUnit}
